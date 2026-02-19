@@ -1,0 +1,41 @@
+# Compiled class files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Log file
+*.log
+log/
+target/
+build/
+
+# IntelliJ IDEA files
+*.idea/
+*.iml
+*.iws
+
+# Maven files
+# target/ should cover most generated Maven files
+pom.xml.tag
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+builddirectory/
+target/
+
+# Gradle files
+.gradle/
+/build/
+# Ignore Gradle wrapper gradlew files, except the wrapper itself (for cross-platform use)
+!gradle/wrapper/gradle-wrapper.jar
+# The following ignores the gradlew/gradlew.bat files
+gradlew
+gradlew.bat
+
+# Operating System files
+.DS_Store       # Mac
+Thumbs.db       # Windows
