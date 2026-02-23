@@ -27,4 +27,12 @@ public class Task {
     public String getStatus(){
         return this.status ? "Concluída" : "Não concluída";
     }
+
+    public void setStatus(boolean status){
+        this.status = status;
+    }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
 }

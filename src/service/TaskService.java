@@ -25,9 +25,7 @@ public class TaskService {
     public Task getTaskById(int taskid) throws TaskNotFoundException {
         for (Task task : tasks){
             if (task.getId() == taskid){
-
                 return task;
-//                Colocar na UI System.out.printf("Dados da tarefa:%nNome: %s%nId: %d%nCategoria: %s%nStatus: %s%n",task.getTitle(), task.getId(), task.getCategory(), task.getStatus());
             }
         }
             throw new TaskNotFoundException("Tarefa não encontrada");
@@ -36,4 +34,22 @@ public class TaskService {
         return tasks;
     }
 
+    public void taskConcluida(int taskid) throws TaskNotFoundException{
+        for (Task task : tasks){
+            if (task.getId() == taskid){
+                task.setStatus(true);
+                return;
+            }
+        }
+        throw new TaskNotFoundException("Tarefa não encontrada");
+    }
+
+    public void deleteTask(int taskid) throws TaskNotFoundException{
+        boolean removed = tasks.removeIf(task -> task.getId() == taskid);
+
+        if(!removed){
+            throw new TaskNotFoundException("Tarefa não encontrada");
+
+        }
+    }
 }
