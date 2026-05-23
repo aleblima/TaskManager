@@ -1,11 +1,11 @@
 package org.example.service;
 
-import exception.TaskNotFoundException;
-import model.Category;
-import model.Task;
-import model.User;
 
 import java.util.ArrayList;
+import org.example.exception.TaskNotFoundException;
+import org.example.model.Category;
+import org.example.model.Task;
+import org.example.model.User;
 
 public class TaskService {
     private ArrayList<Task> tasks = new ArrayList<>();

@@ -12,4 +12,8 @@ public class User {
     public int getId(){
         return id;
     }
+
+    public String getNome() { return name; }
+
+    public void setId(int id) { this.id = id; }
 }

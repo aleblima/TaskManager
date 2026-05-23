@@ -1,9 +1,8 @@
 package org.example.service;
 
-import exception.InvalidUserException;
-import model.User;
-
 import java.util.ArrayList;
+import org.example.exception.InvalidUserException;
+import org.example.model.User;
 
 public class UserService {
     private ArrayList<User> users = new ArrayList<>();
