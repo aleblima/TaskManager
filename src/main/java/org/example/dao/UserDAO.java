@@ -4,10 +4,9 @@ import org.example.database.Connect;
 import org.example.model.User;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class UserDAO {
-
-    public class UsuarioDAO {
 
         public void create(User user) throws SQLException {
             String sql = "INSERT INTO usuarios (nome) VALUES (?)";
@@ -60,7 +59,7 @@ public class UserDAO {
             return null;
         }
 
-        public void atualizar(User user) throws SQLException {
+        public void update(User user) throws SQLException {
             String sql = "UPDATE usuarios SET nome = ? WHERE id = ?";
 
             try (Connection conn = Connect.getConnect();
@@ -72,7 +71,7 @@ public class UserDAO {
             }
         }
 
-        public void deletar(int id) throws SQLException {
+        public void delete(int id) throws SQLException {
             String sql = "DELETE FROM usuarios WHERE id = ?";
 
             try (Connection conn = Connect.getConnect();
@@ -82,5 +81,19 @@ public class UserDAO {
                 stmt.executeUpdate();
             }
         }
+
+        public ArrayList<User> listAll() throws SQLException {
+            String sql = "SELECT * FROM usuarios";
+            ArrayList<User> list = new ArrayList<>();
+
+            try (Connection conn = Connect.getConnect();
+                 PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    list.add(new User(rs.getString("nome"), rs.getInt("id")));
+                }
+            }
+            return list;
+        }
     }
-}
