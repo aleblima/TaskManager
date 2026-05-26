@@ -24,6 +24,9 @@ public class Task {
     public String getCategory(){
         return category.getCategory();
     }
+    public User getUser(){
+        return user;
+    }
     public String getStatus(){
         return this.status ? "Concluída" : "Não concluída";
     }
