@@ -1,17 +1,19 @@
 package org.example;
 
-
-import org.example.service.TaskService;
-import org.example.service.UserService;
+import org.example.database.Initializer;
+import org.example.service.*;
 import org.example.ui.ConsoleMenu;
 
 public class Main {
     public static void main(String[] args) {
-    UserService userService = new UserService();
-    TaskService taskService = new TaskService(userService);
+        // Initialize DB Schema
+        Initializer.inicializar();
 
-    ConsoleMenu menu = new ConsoleMenu(taskService, userService);
+        UserService userService = new UserServiceImpl();
+        CategoryService categoryService = new CategoryServiceImpl();
+        TaskService taskService = new TaskServiceImpl();
 
+        ConsoleMenu menu = new ConsoleMenu(taskService, userService, categoryService);
         menu.start();
     }
 }

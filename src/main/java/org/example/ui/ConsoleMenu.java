@@ -1,8 +1,9 @@
 package org.example.ui;
 
-
 import org.example.model.Category;
 import org.example.model.Task;
+import org.example.model.User;
+import org.example.service.CategoryService;
 import org.example.service.TaskService;
 import org.example.service.UserService;
 
@@ -13,11 +14,13 @@ import java.util.Scanner;
 public class ConsoleMenu {
     private final TaskService taskService;
     private final UserService userService;
+    private final CategoryService categoryService;
     private final Scanner scanner;
 
-    public ConsoleMenu(TaskService taskService, UserService userService) {
+    public ConsoleMenu(TaskService taskService, UserService userService, CategoryService categoryService) {
         this.taskService = taskService;
         this.userService = userService;
+        this.categoryService = categoryService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -55,8 +58,9 @@ public class ConsoleMenu {
     private void handleCreateUser() {
         System.out.print("Nome do novo usuário: ");
         String name = scanner.nextLine();
-        userService.criarUsuario(name);
-        // O UserService já imprime a confirmação
+        User user = new User(name, 0);
+        userService.createUser(user);
+        System.out.println("Usuário criado: " + user.getNome() + ", id: " + user.getId());
     }
 
     private void handleCreateTask() {
@@ -68,7 +72,24 @@ public class ConsoleMenu {
         String catName = scanner.nextLine();
 
         try {
-            taskService.createTask(userId, new Category(catName), taskName);
+            User user = userService.getUserById(userId);
+            
+            // Find or create Category
+            Category category = null;
+            ArrayList<Category> categories = categoryService.getAllCategories();
+            for (Category cat : categories) {
+                if (cat.getCategory().equalsIgnoreCase(catName)) {
+                    category = cat;
+                    break;
+                }
+            }
+            if (category == null) {
+                category = new Category(catName, 0);
+                categoryService.createCategory(category);
+            }
+
+            Task task = new Task(taskName, 0, user, category);
+            taskService.createTask(task);
             System.out.println("Tarefa criada com sucesso!");
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
@@ -85,7 +106,9 @@ public class ConsoleMenu {
         System.out.print("ID da tarefa concluída: ");
         int id = readInt();
         try {
-            taskService.taskConcluida(id);
+            Task task = taskService.getTaskById(id);
+            task.setStatus(true);
+            taskService.updateTask(task);
             System.out.println("Status atualizado!");
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
