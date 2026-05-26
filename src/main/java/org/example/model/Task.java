@@ -27,8 +27,15 @@ public class Task {
     public User getUser(){
         return user;
     }
+    public int getCategoryId() {
+        return category.getId();
+    }
     public String getStatus(){
         return this.status ? "Concluída" : "Não concluída";
+    }
+
+    public boolean isStatus() {
+        return status;
     }
 
     public void setStatus(boolean status){
@@ -37,5 +44,9 @@ public class Task {
 
     public void setTitle(String title){
         this.title = title;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
