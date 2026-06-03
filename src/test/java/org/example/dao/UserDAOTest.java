@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAOTest {
     private UserDAO userDAO;
@@ -25,7 +25,7 @@ public class UserDAOTest {
         userDAO.create(u1);
         userDAO.create(u2);
 
-        ArrayList<User> users = userDAO.listAll();
+        List<User> users = userDAO.listAll();
         assertNotNull(users);
         assertTrue(users.size() >= 2);
         

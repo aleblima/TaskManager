@@ -7,8 +7,9 @@ import org.example.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
-public class TaskDAO {
+public class TaskDAO implements TaskDAOInterface {
 
     public void create(Task task) throws SQLException {
         String sql = "INSERT INTO tarefas (titulo, concluida, usuario_id, categoria_id) VALUES (?, ?, ?, ?)";
@@ -55,7 +56,7 @@ public class TaskDAO {
         return null;
     }
 
-    public ArrayList<Task> getAll() throws SQLException {
+    public List<Task> listAll() throws SQLException {
         String sql = """
                 SELECT t.id, t.titulo, t.concluida,
                        u.id AS usuario_id, u.nome AS usuario_nome,
@@ -65,7 +66,7 @@ public class TaskDAO {
                 JOIN categorias c ON t.categoria_id = c.id
                 """;
 
-        ArrayList<Task> list = new ArrayList<>();
+        List<Task> list = new ArrayList<>();
 
         try (Connection conn = Connect.getConnect();
              PreparedStatement stmt = conn.prepareStatement(sql);

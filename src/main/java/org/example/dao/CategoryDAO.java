@@ -5,8 +5,9 @@ import org.example.model.Category;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
-public class CategoryDAO {
+public class CategoryDAO implements CategoryDAOInterface {
 
     public void create(Category category) throws SQLException {
         String sql = "INSERT INTO categorias (nome) VALUES (?)";
@@ -42,9 +43,9 @@ public class CategoryDAO {
         return null;
     }
 
-    public ArrayList<Category> getAll() throws SQLException {
+    public List<Category> listAll() throws SQLException {
         String sql = "SELECT * FROM categorias";
-        ArrayList<Category> list = new ArrayList<>();
+        List<Category> list = new ArrayList<>();
 
         try (Connection conn = Connect.getConnect();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -57,7 +58,7 @@ public class CategoryDAO {
         return list;
     }
 
-    public void atualizar(Category category) throws SQLException {
+    public void update(Category category) throws SQLException {
         String sql = "UPDATE categorias SET nome = ? WHERE id = ?";
 
         try (Connection conn = Connect.getConnect();
@@ -69,7 +70,7 @@ public class CategoryDAO {
         }
     }
 
-    public void deletar(int id) throws SQLException {
+    public void delete(int id) throws SQLException {
         String sql = "DELETE FROM categorias WHERE id = ?";
 
         try (Connection conn = Connect.getConnect();

@@ -3,21 +3,21 @@ package org.example.ui;
 import org.example.model.Category;
 import org.example.model.Task;
 import org.example.model.User;
-import org.example.service.CategoryService;
-import org.example.service.TaskService;
-import org.example.service.UserService;
+import org.example.service.CategoryServiceInterface;
+import org.example.service.TaskServiceInterface;
+import org.example.service.UserServiceInterface;
 
-import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleMenu {
-    private final TaskService taskService;
-    private final UserService userService;
-    private final CategoryService categoryService;
+    private final TaskServiceInterface taskService;
+    private final UserServiceInterface userService;
+    private final CategoryServiceInterface categoryService;
     private final Scanner scanner;
 
-    public ConsoleMenu(TaskService taskService, UserService userService, CategoryService categoryService) {
+    public ConsoleMenu(TaskServiceInterface taskService, UserServiceInterface userService, CategoryServiceInterface categoryService) {
         this.taskService = taskService;
         this.userService = userService;
         this.categoryService = categoryService;
@@ -76,7 +76,7 @@ public class ConsoleMenu {
             
             // Find or create Category
             Category category = null;
-            ArrayList<Category> categories = categoryService.getAllCategories();
+            List<Category> categories = categoryService.getAllCategories();
             for (Category cat : categories) {
                 if (cat.getCategory().equalsIgnoreCase(catName)) {
                     category = cat;
@@ -141,7 +141,7 @@ public class ConsoleMenu {
     }
 
     private void listAllTasks() {
-        ArrayList<Task> tasks = taskService.getAllTasks();
+        List<Task> tasks = taskService.getAllTasks();
         if (tasks.isEmpty()) {
             System.out.println("\nNenhuma tarefa cadastrada.");
             return;

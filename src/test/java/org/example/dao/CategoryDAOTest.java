@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class CategoryDAOTest {
     private CategoryDAO categoryDAO;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         Initializer.inicializar();
         categoryDAO = new CategoryDAO();
     }
@@ -28,19 +28,19 @@ public class CategoryDAOTest {
         assertNotNull(fetched);
         assertEquals("TestCategory", fetched.getCategory());
 
-        ArrayList<Category> all = categoryDAO.getAll();
+        List<Category> all = categoryDAO.listAll();
         assertTrue(all.size() > 0);
 
         // Update
         Category updateCat = new Category("UpdatedTestCategory", category.getId());
-        categoryDAO.atualizar(updateCat);
+        categoryDAO.update(updateCat);
 
         Category fetchedUpdated = categoryDAO.getById(category.getId());
         assertNotNull(fetchedUpdated);
         assertEquals("UpdatedTestCategory", fetchedUpdated.getCategory());
 
         // Delete
-        categoryDAO.deletar(category.getId());
+        categoryDAO.delete(category.getId());
         assertNull(categoryDAO.getById(category.getId()));
     }
 }
