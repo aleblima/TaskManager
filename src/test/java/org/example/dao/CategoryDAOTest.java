@@ -1,46 +1,90 @@
 package org.example.dao;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import org.example.database.Connect;
 import org.example.database.Initializer;
 import org.example.model.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.sql.SQLException;
-import java.util.List;
 
 public class CategoryDAOTest {
     private CategoryDAO categoryDAO;
 
+    private Category buildCategory() {
+        return new Category("TestCategory", 0);
+    }
+
+    private Category createCategoryPersistent() throws SQLException {
+        Category c = buildCategory();
+        categoryDAO.create(c);
+        return c;
+    }
+
     @BeforeEach
-    public void setup() {
+    public void setup() throws SQLException {
         Initializer.inicializar();
+
+        try (Connection conn = Connect.getConnect();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM tarefas");
+            stmt.executeUpdate("DELETE FROM categorias");
+            stmt.executeUpdate("DELETE FROM usuarios");
+        }
+
         categoryDAO = new CategoryDAO();
     }
 
     @Test
-    public void testCRUD() throws SQLException {
-        Category category = new Category("TestCategory", 0);
-        categoryDAO.create(category);
-        assertTrue(category.getId() > 0);
+    public void createCategory() throws SQLException {
+        Category c = buildCategory();
+        categoryDAO.create(c);
+        assertTrue(c.getId() > 0);
+    }
 
-        Category fetched = categoryDAO.getById(category.getId());
+    @Test
+    public void getById() throws SQLException {
+        Category c = createCategoryPersistent();
+        Category fetched = categoryDAO.getById(c.getId());
         assertNotNull(fetched);
-        assertEquals("TestCategory", fetched.getCategory());
+        assertEquals(c.getCategory(), fetched.getCategory());
+    }
+
+    @Test
+    public void listAll() throws SQLException {
+        Category c1 = new Category("Cat1", 0);
+        Category c2 = new Category("Cat2", 0);
+        categoryDAO.create(c1);
+        categoryDAO.create(c2);
 
         List<Category> all = categoryDAO.listAll();
-        assertTrue(all.size() > 0);
+        assertNotNull(all);
+        assertTrue(all.stream().anyMatch(cat -> cat.getCategory().equals("Cat1")));
+        assertTrue(all.stream().anyMatch(cat -> cat.getCategory().equals("Cat2")));
+    }
 
-        // Update
-        Category updateCat = new Category("UpdatedTestCategory", category.getId());
-        categoryDAO.update(updateCat);
+    @Test
+    public void updateCategory() throws SQLException {
+        Category c = createCategoryPersistent();
+        // mutate the persisted object and update it
+        Category toUpdate = categoryDAO.getById(c.getId());
+        assertNotNull(toUpdate);
+        toUpdate.setCategory("UpdatedCat");
+        categoryDAO.update(toUpdate);
 
-        Category fetchedUpdated = categoryDAO.getById(category.getId());
-        assertNotNull(fetchedUpdated);
-        assertEquals("UpdatedTestCategory", fetchedUpdated.getCategory());
+        Category fetched = categoryDAO.getById(c.getId());
+        assertNotNull(fetched);
+        assertEquals("UpdatedCat", fetched.getCategory());
+    }
 
-        // Delete
-        categoryDAO.delete(category.getId());
-        assertNull(categoryDAO.getById(category.getId()));
+    @Test
+    public void deleteCategory() throws SQLException {
+        Category c = createCategoryPersistent();
+        categoryDAO.delete(c.getId());
+        assertNull(categoryDAO.getById(c.getId()));
     }
 }
