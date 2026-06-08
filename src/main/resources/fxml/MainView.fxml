@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ui.MainController">
+    <top>
+        <ToolBar>
+            <Button fx:id="newBtn" text="Novo" onAction="#handleNewTask" />
+            <Button fx:id="editBtn" text="Editar" onAction="#handleEditTask" />
+            <Button fx:id="deleteBtn" text="Excluir" onAction="#handleDeleteTask" />
+            <Separator />
+            <Button fx:id="categoriesBtn" text="Categorias" onAction="#handleOpenCategories" />
+            <Button fx:id="usersBtn" text="Usuários" onAction="#handleOpenUsers" />
+        </ToolBar>
+    </top>
+    <center>
+        <TableView fx:id="taskTable">
+            <columns>
+                <TableColumn fx:id="titleCol" text="Título" />
+                <TableColumn fx:id="statusCol" text="Status" />
+                <TableColumn fx:id="userCol" text="Usuário" />
+                <TableColumn fx:id="categoryCol" text="Categoria" />
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <Label fx:id="statusLabel" text="" />
+    </bottom>
+</BorderPane>
