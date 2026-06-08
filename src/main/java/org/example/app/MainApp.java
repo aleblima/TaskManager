@@ -5,10 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.example.database.Initializer;
 
 public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
+        Initializer.inicializar();
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
         Parent root = loader.load();
 
