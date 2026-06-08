@@ -37,10 +37,17 @@ public class CategoryController {
         dlg.setContentText("Nome:");
         dlg.showAndWait().ifPresent(name -> {
             try {
+                String error = FormValidator.validateName(name, "categoria");
+                if (error != null) {
+                    UiAlerts.warning(error);
+                    return;
+                }
                 Category c = new Category(name, 0);
                 categoryService.createCategory(c);
                 refreshCategories();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                UiAlerts.error("Erro ao criar categoria: " + e.getMessage());
+            }
         });
     }
 
@@ -54,17 +61,30 @@ public class CategoryController {
         dlg.setContentText("Nome:");
         dlg.showAndWait().ifPresent(name -> {
             try {
+                String error = FormValidator.validateName(name, "categoria");
+                if (error != null) {
+                    UiAlerts.warning(error);
+                    return;
+                }
                 sel.setCategory(name);
                 categoryService.updateCategory(sel);
                 refreshCategories();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                UiAlerts.error("Erro ao editar categoria: " + e.getMessage());
+            }
         });
     }
 
     @FXML
     public void handleDelete() {
         Category sel = categoryList.getSelectionModel().getSelectedItem();
-        if (sel == null) return;
+        if (sel == null) {
+            UiAlerts.warning("Selecione uma categoria para excluir.");
+            return;
+        }
+        if (!UiAlerts.confirm("Deseja realmente excluir a categoria \"" + sel.getCategory() + "\"?")) {
+            return;
+        }
         categoryService.deleteCategory(sel.getId());
         refreshCategories();
     }

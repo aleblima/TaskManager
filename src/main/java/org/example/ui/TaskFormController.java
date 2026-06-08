@@ -64,6 +64,10 @@ public class TaskFormController {
             List<Category> cats = categoryService.getAllCategories();
             categoryCombo.setItems(FXCollections.observableArrayList(cats));
 
+            if (task == null && (users.isEmpty() || cats.isEmpty())) {
+                UiAlerts.warning("Cadastre pelo menos um usuário e uma categoria antes de criar tarefas.");
+            }
+
             // if editing existing task, select values
             if (task != null) {
                 // select user
@@ -89,6 +93,16 @@ public class TaskFormController {
     @FXML
     public void handleSave() {
         try {
+            String error = FormValidator.validateTask(
+                    titleField.getText(),
+                    userCombo.getSelectionModel().getSelectedItem(),
+                    categoryCombo.getSelectionModel().getSelectedItem()
+            );
+            if (error != null) {
+                UiAlerts.warning(error);
+                return;
+            }
+
             if (task == null) {
                 User selectedUser = userCombo.getSelectionModel().getSelectedItem();
                 Category selectedCat = categoryCombo.getSelectionModel().getSelectedItem();
@@ -104,8 +118,7 @@ public class TaskFormController {
             if (parentController != null) parentController.refreshTasks();
             closeWindow();
         } catch (Exception e) {
-            // minimal error handling
-            System.err.println("Erro salvar tarefa: " + e.getMessage());
+            UiAlerts.error("Erro ao salvar tarefa: " + e.getMessage());
         }
     }
 

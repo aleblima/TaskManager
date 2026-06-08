@@ -2,6 +2,7 @@ package org.example.ui;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextInputDialog;
 import org.example.model.User;
@@ -37,9 +38,16 @@ public class UserController {
         dlg.setContentText("Nome:");
         dlg.showAndWait().ifPresent(name -> {
             try {
+                String error = FormValidator.validateName(name, "usuário");
+                if (error != null) {
+                    UiAlerts.warning(error);
+                    return;
+                }
                 userService.createUser(new User(name, 0));
                 refreshUsers();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                UiAlerts.error("Erro ao criar usuário: " + e.getMessage());
+            }
         });
     }
 
@@ -53,17 +61,30 @@ public class UserController {
         dlg.setContentText("Nome:");
         dlg.showAndWait().ifPresent(name -> {
             try {
+                String error = FormValidator.validateName(name, "usuário");
+                if (error != null) {
+                    UiAlerts.warning(error);
+                    return;
+                }
                 sel.setNome(name);
                 userService.updateUser(sel);
                 refreshUsers();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                UiAlerts.error("Erro ao editar usuário: " + e.getMessage());
+            }
         });
     }
 
     @FXML
     public void handleDelete() {
         User sel = userList.getSelectionModel().getSelectedItem();
-        if (sel == null) return;
+        if (sel == null) {
+            UiAlerts.warning("Selecione um usuário para excluir.");
+            return;
+        }
+        if (!UiAlerts.confirm("Deseja realmente excluir o usuário \"" + sel.getNome() + "\"?")) {
+            return;
+        }
         userService.deleteUser(sel.getId());
         refreshUsers();
     }

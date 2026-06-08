@@ -72,13 +72,18 @@ public class MainController {
     @FXML
     public void handleDeleteTask() {
         Task selected = taskTable.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            try {
-                taskService.deleteTask(selected.getId());
-                refreshTasks();
-            } catch (Exception e) {
-                statusLabel.setText("Erro ao deletar: " + e.getMessage());
-            }
+        if (selected == null) {
+            statusLabel.setText("Selecione uma tarefa para excluir.");
+            return;
+        }
+        if (!UiAlerts.confirm("Deseja realmente excluir a tarefa \"" + selected.getTitle() + "\"?")) {
+            return;
+        }
+        try {
+            taskService.deleteTask(selected.getId());
+            refreshTasks();
+        } catch (Exception e) {
+            statusLabel.setText("Erro ao deletar: " + e.getMessage());
         }
     }
 
