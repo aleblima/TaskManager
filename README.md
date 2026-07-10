@@ -43,7 +43,7 @@ mvn javafx:run
 
 ## Visão geral da aplicação
 
-![TaskManager](excalidraw/TaskManager.png)
+![TaskManager](docs/Módulo_Inicial/TaskManager.png)
 
 ## Observações
 
