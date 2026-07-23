@@ -44,7 +44,6 @@ config/        → Outras configurações (Swagger, etc.)
 |-------|------|------------|
 | id | Long (PK) | Gerado automaticamente |
 | nome | String | **Case-insensitive**: "trabalho" e "Trabalho" são a mesma categoria |
-| tarefas | List\<Tarefa\> | `@OneToMany` para Tarefa |
 
 #### `Usuario`
 | Campo | Tipo | Observação |
@@ -53,19 +52,43 @@ config/        → Outras configurações (Swagger, etc.)
 | nome | String | Nome real do usuário |
 | username | String | Identificador único para login |
 | senha | String | Armazenar com BCrypt |
-| tarefas | List\<Tarefa\> | `@OneToMany` para Tarefa (1-N) |
 
 #### `Tarefa`
 | Campo | Tipo | Observação |
 |-------|------|------------|
 | id | Long (PK) | Gerado automaticamente |
-| ... | ... | Campos existentes da branch Main |
+| titulo | String | Título da tarefa (obrigatório) |
+| descricao | String | Descrição detalhada (opcional) |
+| concluida | Boolean | Status da tarefa (padrão: false) |
+| dataCriacao | LocalDateTime | Data de criação (auto-preenchida) |
 | usuario | Usuario | `@ManyToOne` — dono da tarefa |
 | categoria | Categoria | `@ManyToOne` — gerenciada pela tarefa (sem CRUD separado de categorias) |
 
-### Relacionamentos
-- **Categoria 1 → N Tarefa**: uma categoria pode ter várias tarefas
-- **Usuario 1 → N Tarefa**: cada tarefa pertence a exatamente um usuário
+## DTOs e Relacionamentos
+- Relacionamentos `Tarefa→Usuario` e `Tarefa→Categoria` são unidirecionais
+  (`@ManyToOne` apenas); não adicionar `@OneToMany` do lado inverso em
+  `Usuario` ou `Categoria`.
+- Consultas de listas (ex: tarefas de um usuário) são feitas via métodos
+  de query no Repository, nunca por navegação de entidade
+  (ex: `usuario.getTarefas()` não existe).
+- Controllers nunca retornam entidades JPA diretamente; sempre DTOs.
+- TarefaResponseDTO expõe apenas `usuarioId` e `categoriaId` (Long), não os
+  objetos `Usuario`/`Categoria` completos.
+- O `usuarioId` usado em qualquer consulta/filtro de tarefas vem sempre do
+  usuário autenticado (via JWT/SecurityContext), nunca de parâmetro de URL
+  ou corpo da requisição — não deve existir rota como
+  `/tarefas?usuarioId=X` ou `/usuarios/{id}/tarefas`.
+## Escopo de arquivos por entidade
+- Categoria possui apenas Entity e Repository — sem Controller, Service ou
+  DTO próprios. É gerenciada internamente pelo TarefaService (busca/cria
+  categoria a partir do repository, sem expor endpoint dedicado).
+- Usuario e Tarefa possuem o conjunto completo de camadas
+  (Entity, Repository, Service, Controller, DTOs).
+
+## Estilo de desenvolvimento
+- Services (e demais componentes com múltiplas implementações possíveis)
+  são desenvolvidos contra interfaces, seguindo o padrão já usado na
+  branch Main (ex: TarefaServiceInterface, UsuarioServiceInterface).
 
 ### Configuração JPA
 - `ddl-auto=create-drop` — schema recriado a cada inicialização
