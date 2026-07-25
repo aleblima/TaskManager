@@ -4,7 +4,8 @@
 
 ## Objetivo
 
-Definir todos os DTOs (Data Transfer Objects) de request e response para a API RESTful do TaskManager, incluindo validações Bean Validation, e atualizar o AGENTS.md com a regra de que Bean Validation é obrigatório em todos os DTOs.
+Definir todos os DTOs (Data Transfer Objects) de request e response para a 
+API RESTful do TaskManager, incluindo validações Bean Validation.
 
 ## DTOs
 
@@ -78,7 +79,7 @@ Usado para **GET** `/usuarios/me`.
 ## Decisões de Implementação
 
 ### Regras de validação Bean Validation
-- **Obrigatória** em todos os DTOs — regra a ser adicionada ao AGENTS.md
+- **Obrigatória** em todos os DTOs
 - RequestDTO nunca inclui `id` nem campos calculados/derivados pelo servidor
 - RequestDTO de senha nunca é reaproveitado como ResponseDTO
 - Todo campo obrigatório em RequestDTO deve ter Bean Validation refletindo as constraints do schema do banco
