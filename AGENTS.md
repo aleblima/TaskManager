@@ -2,9 +2,11 @@
 
 ## Arquitetura (geral)
 
-Migração de aplicação local (JavaFX + SQLite) para API RESTful, stateless e multiusuário com Spring Boot.
+Migração de aplicação local (JavaFX + SQLite) para API RESTful, stateless e 
+multiusuário com Spring Boot. Nesse arquivo contém todas as regras do 
+projeto que não devem ser quebradas **NUNCA**!
 
-### Pilha tecnológica
+### Stack tecnológica
 | Camada | Tecnologia |
 |--------|-----------|
 | Framework | Spring Boot 4.1.0 (Java 21) |
@@ -72,12 +74,14 @@ config/        → Outras configurações (Swagger, etc.)
   de query no Repository, nunca por navegação de entidade
   (ex: `usuario.getTarefas()` não existe).
 - Controllers nunca retornam entidades JPA diretamente; sempre DTOs.
-- TarefaResponseDTO expõe apenas `usuarioId` e `categoriaId` (Long), não os
-  objetos `Usuario`/`Categoria` completos.
+- TarefaResponseDTO expõe apenas os dados comuns, porém em Usuario e Categoria somente 
+  os seus IDs(long) e nomes, não o objeto completo.
 - O `usuarioId` usado em qualquer consulta/filtro de tarefas vem sempre do
   usuário autenticado (via JWT/SecurityContext), nunca de parâmetro de URL
   ou corpo da requisição — não deve existir rota como
   `/tarefas?usuarioId=X` ou `/usuarios/{id}/tarefas`.
+- Bean Validation deve ser mantida em todos os DTOs, uma regra indiscutivel.
+
 ## Escopo de arquivos por entidade
 - Categoria possui apenas Entity e Repository — sem Controller, Service ou
   DTO próprios. É gerenciada internamente pelo TarefaService (busca/cria
