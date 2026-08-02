@@ -1,187 +1,72 @@
-# TaskManager — Migração para API RESTful (Spring Boot)
+# TaskManager — Guia de Desenvolvimento & Invariantes
 
-## Arquitetura (geral)
-
-Migração de aplicação local (JavaFX + SQLite) para API RESTful, stateless e 
-multiusuário com Spring Boot. Nesse arquivo contém todas as regras do 
-projeto que não devem ser quebradas **NUNCA**!
-
-### Stack tecnológica
-| Camada | Tecnologia |
-|--------|-----------|
-| Framework | Spring Boot 4.1.0 (Java 21) |
-| Persistência | JPA / Hibernate (`ddl-auto=create-drop`) |
-| Banco principal | PostgreSQL |
-| Banco de testes | H2 em memória |
-| Autenticação | JWT (jjwt 0.12.6) |
-| Documentação | Swagger (springdoc-openapi 2.5.0) |
-| Build | Maven |
-
-### Estrutura de pacotes (em `com.example.taskmanager`)
-```
-controller/    → REST controllers (endpoints)
-service/       → Lógica de negócio
-entity/        → JPA entities
-repository/    → Spring Data JPA repositories
-dto/           → Data Transfer Objects (payloads de request/response)
-exception/     → Tratamento global de exceções (@ControllerAdvice)
-security/      → Filtros JWT, SecurityConfig, UserDetailsService
-config/        → Outras configurações (Swagger, etc.)
-```
-
-### Regras de tratamento de erros
-- Erros de validação, dados não encontrados, conflitos, acesso negado → usar `@ControllerAdvice` global
-- Login com credenciais inválidas → `401`
-- Token ausente, inválido ou expirado → `401`
-- Reaproveitar lógica de negócio existente da branch `Main`
+Este arquivo é a fonte da verdade para o desenvolvimento do projeto. Ele orienta desenvolvedores humanos e agentes de IA sobre as regras que **NUNCA** devem ser quebradas.
 
 ---
 
-## Modelagem dos dados
+## 1. Fluxo de Mudança (Spec-First SDD)
 
-### Entidades
+Este projeto usa **Specification-Driven Development (SDD)** com especificações vivas (*Living Specs*). 
+Se em algum momento for necessário alterar o comportamento do sistema ou adicionar recursos:
 
-#### `Categoria`
-| Campo | Tipo | Observação |
-|-------|------|------------|
-| id | Long (PK) | Gerado automaticamente |
-| nome | String | **Case-insensitive**: "trabalho" e "Trabalho" são a mesma categoria |
+1. **Atualize a Spec correspondente** (em `docs/Modulo_Avancado/specs/`) e/ou 
+   este 
+   arquivo `AGENTS.md` (se afetar alguma invariante).
+2. **Atualize os testes de verificação** associados para refletir o novo contrato (TDD).
+3. **Altere o código** para fazer os testes passarem.
+4. **Valide manualmente** sem commitar automaticamente. O commit é de responsabilidade do usuário.
 
-#### `Usuario`
-| Campo | Tipo | Observação |
-|-------|------|------------|
-| id | Long (PK) | Gerado automaticamente |
-| nome | String | Nome real do usuário |
-| username | String | Identificador único para login |
-| senha | String | Armazenar com BCrypt |
+### Invariant Especial sobre ADRs:
+> ⚠️ **Sugerir ADR:** Se durante a modificação de uma spec, o agente ou o desenvolvedor identificar que as alterações tomadas contêm decisões de arquitetura transversais ou definitivas de infraestrutura que façam sentido virar um ADR, o agente **deve sugerir explicitamente essa criação** ao usuário para que ele possa revisar e validar a criação de um novo ADR antes de escrevê-lo.
 
-#### `Tarefa`
-| Campo | Tipo | Observação |
-|-------|------|------------|
-| id | Long (PK) | Gerado automaticamente |
-| titulo | String | Título da tarefa (obrigatório) |
-| descricao | String | Descrição detalhada (opcional) |
-| concluida | Boolean | Status da tarefa (padrão: false) |
-| dataCriacao | LocalDateTime | Data de criação (auto-preenchida) |
-| usuario | Usuario | `@ManyToOne` — dono da tarefa |
-| categoria | Categoria | `@ManyToOne` — gerenciada pela tarefa (sem CRUD separado de categorias) |
-
-## DTOs e Relacionamentos
-- Relacionamentos `Tarefa→Usuario` e `Tarefa→Categoria` são unidirecionais
-  (`@ManyToOne` apenas); não adicionar `@OneToMany` do lado inverso em
-  `Usuario` ou `Categoria`.
-- Consultas de listas (ex: tarefas de um usuário) são feitas via métodos
-  de query no Repository, nunca por navegação de entidade
-  (ex: `usuario.getTarefas()` não existe).
-- Controllers nunca retornam entidades JPA diretamente; sempre DTOs.
-- TarefaResponseDTO expõe apenas os dados comuns, porém em Usuario e Categoria somente 
-  os seus IDs(long) e nomes, não o objeto completo.
-- O `usuarioId` usado em qualquer consulta/filtro de tarefas vem sempre do
-  usuário autenticado (via JWT/SecurityContext), nunca de parâmetro de URL
-  ou corpo da requisição — não deve existir rota como
-  `/tarefas?usuarioId=X` ou `/usuarios/{id}/tarefas`.
-- Bean Validation deve ser mantida em todos os DTOs, uma regra indiscutivel.
-
-## Escopo de arquivos por entidade
-- Categoria possui apenas Entity e Repository — sem Controller, Service ou
-  DTO próprios. É gerenciada internamente pelo TarefaService (busca/cria
-  categoria a partir do repository, sem expor endpoint dedicado).
-- Usuario e Tarefa possuem o conjunto completo de camadas
-  (Entity, Repository, Service, Controller, DTOs).
-
-## Estilo de desenvolvimento
-- Services (e demais componentes com múltiplas implementações possíveis)
-  são desenvolvidos contra interfaces, seguindo o padrão já usado na
-  branch Main (ex: TarefaServiceInterface, UsuarioServiceInterface).
-
-### Configuração JPA
-- `ddl-auto=create-drop` — schema recriado a cada inicialização
-- **Lazy loading** para todos os relacionamentos
-- Consultas com `JOIN FETCH` explícito para evitar `LazyInitializationException`
+*Histórico de decisões arquiteturais estruturais fica registrado 
+imutavelmente em `docs/Modulo_Avancado/adr/`.*
 
 ---
 
-## API — Endpoints
+## 2. Invariantes do Sistema (Regras Estritas)
 
-### Autenticação (públicos)
+Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI) ou verificada no Code Review.
 
-| Método | Rota | Propósito | Request Body | Response |
-|--------|------|-----------|-------------|----------|
-| POST | `/auth/registro` | Criar novo usuário | Dados do usuário | Usuário criado (status 201) |
-| POST | `/auth/login` | Autenticar e obter token | username + senha | `{ "token": "...", "nome": "..." }` |
+### Camada de Persistência & Modelagem (JPA)
+*   **R-JPA-01 (Automático - ArchUnit):** Todos os relacionamentos `@ManyToOne` devem ser obrigatoriamente **Lazy Loading** (`FetchType.LAZY`).
+*   **R-JPA-02 (Automático - ArchUnit):** Relacionamentos `Tarefa→Usuario` e `Tarefa→Categoria` são unidirecionais. É proibido adicionar `@OneToMany` do lado inverso (em `Usuario` ou `Categoria`).
+*   **R-JPA-03 (Revisão):** Consultas de listas são feitas via métodos de query explícitos no Repository (com `JOIN FETCH` para evitar `LazyInitializationException`), nunca navegando relações (ex: `usuario.getTarefas()` não existe).
+*   **R-JPA-04 (Automático - Teste):** `ddl-auto=create-drop` ativo no banco principal e de testes.
 
-### Tarefas (requerem autenticação)
+### Camada de Apresentação & DTOs
+*   **R-DTO-01 (Automático - ArchUnit):** Controllers nunca expõem ou retornam entidades JPA diretamente; sempre utilizam DTOs.
+*   **R-DTO-02 (Automático - Teste):** `TarefaResponseDTO` expõe apenas os dados comuns e, para `Usuario` e `Categoria`, expõe apenas os seus `id` (Long) e `nome` (String), sem o objeto completo.
+*   **R-DTO-03 (Automático - ArchUnit/Teste):** O `usuarioId` usado em qualquer filtro ou criação de tarefas é extraído do SecurityContext (JWT). Não é permitido rotas como `/tarefas?usuarioId=X` ou passagem de `usuarioId` em corpos de requisição.
+*   **R-DTO-04 (Automático - ArchUnit):** Bean Validation (`@NotNull`, `@NotBlank`, etc.) é obrigatória em todos os DTOs de Request.
 
-| Método | Rota | Propósito |
-|--------|------|-----------|
-| POST | `/tarefas` | Criar nova tarefa |
-| GET | `/tarefas` | Listar tarefas do usuário autenticado |
-| GET | `/tarefas/{id}` | Obter tarefa por ID |
-| PUT | `/tarefas/{id}` | Atualizar tarefa |
-| PATCH | `/tarefas/{id}/concluir` | Marcar tarefa como concluída |
-| DELETE | `/tarefas/{id}` | Remover tarefa |
+### Escopo das Entidades
+*   **R-ESC-01 (Automático - ArchUnit):** `Categoria` possui apenas as camadas Entity e Repository. Sem DTO, Service ou Controller dedicados. É gerenciada internamente por `TarefaService`.
+*   **R-ESC-02 (Automático - ArchUnit):** `Usuario` e `Tarefa` possuem conjunto completo de camadas (Entity, Repository, Service, Controller, DTOs).
 
-### Usuário (requer autenticação)
-
-| Método | Rota | Propósito |
-|--------|------|-----------|
-| GET | `/usuarios/me` | Dados do próprio usuário |
-
-### Regras de autorização por tarefa
-
-Ao acessar `/tarefas/{id}`:
-
-| Cenário | Status code | Comportamento |
-|---------|-------------|---------------|
-| Tarefa **não existe** | `404` | Lançar `ResourceNotFoundException` |
-| Tarefa **existe** e é **do usuário autenticado** | `200` | Operação normal |
-| Tarefa **existe** mas **não é do usuário** (leitura: GET) | `404` | Mesmo status de "não existe" — não revelar existência |
-| Tarefa **existe** mas **não é do usuário** (escrita: PUT, PATCH, DELETE) | `403` | Lançar `AccessDeniedException` |
+### Segurança & Autorização
+*   **R-SEC-01 (Automático - Teste):** GET `/tarefas/{id}` em tarefa inexistente OU de outro usuário retorna **HTTP 404** (ResourceNotFoundException), ocultando a existência do recurso.
+*   **R-SEC-02 (Automático - Teste):** PUT, PATCH ou DELETE em tarefa de outro usuário lança **HTTP 403** (AccessDeniedException).
+*   **R-SEC-03 (Automático - Teste):** Token JWT assinado com tempo de expiração de **3 horas** e contendo apenas o `sub` (username) no payload.
+*   **R-SEC-04 (Automático - Teste):** Login com credenciais inválidas ou token ausente/inválido retorna **HTTP 401**.
 
 ---
 
-## Segurança (JWT)
+## 3. Índice de Especificações & Decisões
 
-### Fluxo
-1. Usuário faz POST `/auth/login` com username + senha
-2. Servidor valida credenciais e retorna JWT + nome
-3. Cliente envia JWT no header `Authorization: Bearer <token>` em todas as requisições autenticadas
+### Especificações Vivas (Living Specs)
+- `docs/Modulo_Avancado/specs/tarefa-categoria-design.md` — Design de Tarefa e 
+  Categoria
+- `docs/Modulo_Avancado/specs/dto-design.md` — Design de DTOs e validações
+- `docs/Modulo_Avancado/specs/repository-design.md` — Design dos Repositories
+- `docs/Modulo_Avancado/specs/service-design.md` — Design da camada de Services
 
-### Payload do JWT
-```json
-{
-  "sub": "<username>"
-}
-```
-Apenas o username — sem roles, sem dados extras.
-
-### Resposta de login
-```json
-{
-  "token": "<jwt_string>",
-  "nome": "<nome_do_usuario>"
-}
-```
-Apenas token e nome — sem outros dados.
-
-### Configuração do token
-- Duração: **3 horas** (10.800 segundos)
-- Sem refresh token por enquanto
-- Rotas públicas: `/auth/registro`, `/auth/login`
-- Rotas protegidas: todas as demais (incluindo `/tarefas/*` e `/usuarios/*`)
-
----
-
-## Testes
-
-### Configuração
-- Banco H2 em memória para testes
-- `@SpringBootTest` com perfil de teste para usar H2
-- Dependência de teste: `spring-boot-starter-test`
-
-### O que testar
-- Operações CRUD de tarefas
-- Regras de autorização (404 vs 403)
-- Autenticação (registro, login, token inválido/expirado)
-- Case-insensitivity de categorias
-- Endpoint `/usuarios/me`
+### Registro de Decisões Arquiteturais (ADRs)
+- `docs/Modulo_Avancado/adr/adr-001-migracao-api-rest.md` — Escolha do paradigma REST
+- `docs/Modulo_Avancado/adr/adr-002-stack-tecnologica.md` — Versão Spring Boot 4.1.0 e PostgreSQL/H2
+- `docs/Modulo_Avancado/adr/adr-003-seguranca-jwt.md` — Mecanismo de autenticação e formato do Token
+- `docs/Modulo_Avancado/adr/adr-004-mapeamento-jpa.md` — Mapeamentos e lazy-loading
+- `docs/Modulo_Avancado/adr/adr-005-estrutura-retorno-dtos.md` — Uso estrito de DTOs
+- `docs/Modulo_Avancado/adr/adr-006-autorizacao-tarefas.md` — Tratamento de erros 404 vs 403
+- `docs/Modulo_Avancado/adr/adr-007-escopo-categoria.md` — Isolar Categoria sem controller próprio
+- `docs/Modulo_Avancado/adr/adr-008-configuracao-jpa.md` — Uso de ddl-auto=create-drop
