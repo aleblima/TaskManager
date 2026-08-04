@@ -44,7 +44,9 @@ com.example.taskmanager/
 
 - **`ResourceNotFoundException`**: Lançada quando um recurso (tarefa, usuário) não é encontrado no banco de dados. Mapeada para **HTTP 404** no `@ControllerAdvice`.
 - **`AccessDeniedException`**: Lançada em operações de escrita (PUT, PATCH, DELETE) em tarefas pertencentes a outro usuário. Mapeada para **HTTP 403** no `@ControllerAdvice`.
-- **`RegraDeNegocioException`**: Lançada quando houver violação de regra de negócio (ex: tentativa de registro com username já existente ou credenciais inválidas). Mapeada para **HTTP 400** ou **HTTP 409**.
+- **`RegraDeNegocioException`**: Lançada quando houver violação de regra de 
+  negócio (ex: tentativa de registro com username já existente ou 
+  credenciais inválidas). Mapeada para **HTTP 401**.
 
 ---
 
@@ -56,8 +58,8 @@ Lida exclusivamente com o fluxo de autenticação e registro.
 
 ```java
 public interface AuthService {
-    UsuarioResponseDTO registrar(RegistroRequestDTO dto);
-    LoginResponseDTO login(LoginRequestDTO dto);
+    UsuarioResponseDTO registrar(RegistroRequestDTO registroRequest);
+    LoginResponseDTO login(LoginRequestDTO loginRequest);
 }
 ```
 
@@ -67,7 +69,7 @@ Responsável pelo gerenciamento de dados do usuário autenticado.
 
 ```java
 public interface UsuarioService {
-    UsuarioResponseDTO obterUsuarioAtual(String username);
+    UsuarioResponseDTO obterUsuarioAtual(String usernameAutenticado);
 }
 ```
 
@@ -77,14 +79,20 @@ Responsável pelas operações de CRUD e ciclo de vida de tarefas, recebendo o `
 
 ```java
 public interface TarefaService {
-    TarefaResponseDTO criar(TarefaRequestDTO dto, String username);
-    List<TarefaResponseDTO> listarTodas(String username);
-    TarefaResponseDTO buscarPorId(Long id, String username);
-    TarefaResponseDTO atualizar(Long id, TarefaRequestDTO dto, String username);
-    TarefaResponseDTO marcarComoConcluida(Long id, String username);
-    void deletar(Long id, String username);
+    TarefaResponseDTO criar(TarefaRequestDTO tarefaRequest, String usernameAutenticado);
+    List<TarefaResponseDTO> listarTodas(String usernameAutenticado);
+    TarefaResponseDTO buscarPorId(Long id, String usernameAutenticado);
+    TarefaResponseDTO atualizar(Long id, TarefaRequestDTO tarefaRequest, String usernameAutenticado);
+    TarefaResponseDTO marcarComoConcluida(Long id, String usernameAutenticado);
+    void deletar(Long id, String usernameAutenticado);
 }
 ```
+
+### Convenção de Nomenclatura de Parâmetros
+
+- **DTOs de Request** (sufixo `Request`): parâmetros como `registroRequest`, `loginRequest`, `tarefaRequest` — vêm do **corpo da requisição HTTP**, recebidos pelo Controller e repassados ao Service.
+- **DTOs de Response** (sufixo `Response`): nunca são parâmetros de entrada — são apenas o **retorno** dos métodos do Service.
+- **`usernameAutenticado`**: extraído do token JWT (`SecurityContext`) pelo Controller e repassado ao Service. **Nunca** vem do corpo da requisição nem de query params.
 
 ---
 
