@@ -37,9 +37,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UsuarioResponseDTO registrar(RegistroRequestDTO registroRequestDTO) {
-         if (usuarioRepository.findByUsername(registroRequestDTO.username()).isPresent()){
-                    throw new RegraDeNegocioException("Username já existe");
-                }
+         usuarioRepository.findByUsername(registroRequestDTO.username())
+                 .ifPresent(usuario -> {
+                             throw new RegraDeNegocioException(String.format("%s está em uso ", usuario.getUsername()));
+                         });
         Usuario usuario = usuarioMapper.toEntity(registroRequestDTO);
         usuario.setSenha(passwordEncoder.encode(registroRequestDTO.senha()));
 
