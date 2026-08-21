@@ -14,9 +14,10 @@ public class UsuarioMapper {
                 usuario.getUsername());
     }
 
-    public Usuario toEntity(RegistroRequestDTO registroRequestDTO){
-        return new Usuario( null,
-                registroRequestDTO.nome(),
-                registroRequestDTO.username(), null);
+    public Usuario toEntity(RegistroRequestDTO dto){
+        return new Usuario(
+                null,
+                dto.nome(),
+                dto.username(), null);
     }
 }
