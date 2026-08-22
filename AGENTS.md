@@ -60,6 +60,7 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/specs/dto-design.md` — Design de DTOs e validações
 - `docs/Modulo_Avancado/specs/repository-design.md` — Design dos Repositories
 - `docs/Modulo_Avancado/specs/service-design.md` — Design da camada de Services
+- `docs/Modulo_Avancado/specs/setup-desenvolvimento.md` — Setup de desenvolvimento e inicialização da API
 
 ### Registro de Decisões Arquiteturais (ADRs)
 - `docs/Modulo_Avancado/adr/adr-001-migracao-api-rest.md` — Escolha do paradigma REST
@@ -70,3 +71,5 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/adr/adr-006-autorizacao-tarefas.md` — Tratamento de erros 404 vs 403
 - `docs/Modulo_Avancado/adr/adr-007-escopo-categoria.md` — Isolar Categoria sem controller próprio
 - `docs/Modulo_Avancado/adr/adr-008-configuracao-jpa.md` — Uso de ddl-auto=create-drop
+- `docs/Modulo_Avancado/adr/adr-009-mappers-manuais.md` — Mapeamento manual entre entidades e DTOs
+- `docs/Modulo_Avancado/adr/adr-010-ambiente-desenvolvimento-docker-compose.md` — Ambiente de desenvolvimento com Docker Compose
