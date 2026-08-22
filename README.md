@@ -1,52 +1,66 @@
 # TaskManager
 
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![JavaFX](https://img.shields.io/badge/JavaFX-21-1F8ACB?style=for-the-badge)
-![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-Aplicação desktop para gerenciamento de tarefas, usuários e categorias, desenvolvida em Java com JavaFX, FXML e SQLite.
+API REST para gerenciamento de tarefas, usuários e categorias, desenvolvida em Java com Spring Boot e PostgreSQL.
+
+## Pré-requisitos
+
+- Java 21
+- Docker Desktop
 
 ## Como executar
 
-### Via Maven
+### 1. Iniciar o PostgreSQL
+
 ```bash
-mvn javafx:run
+docker compose up -d
 ```
 
-### Via IDE
-1. Reimporte o projeto como Maven.
-2. Marque `src/main/java` como source root, se necessário.
-3. Execute `org.example.Main`.
+### 2. Compilar a aplicação
 
-## Funcionalidades
+```bash
+mvnw.cmd -DskipTests compile
+```
 
-- Criar, editar, listar e excluir tarefas.
-- Criar, editar, listar e excluir usuários.
-- Criar, editar, listar e excluir categorias.
-- Interface gráfica com JavaFX e Scene Builder.
+### 3. Executar a aplicação
 
-## Estrutura da aplicação
+```bash
+mvnw.cmd spring-boot:run
+```
 
-- `model` - entidades da aplicação.
-- `dao` - acesso ao SQLite.
-- `service` - regras de negócio.
-- `ui` - controllers JavaFX.
-- `app` - ponto de entrada da interface.
+## Variáveis de ambiente
 
-## Arquitetura
+| Variável | Valor padrão | Descrição |
+|----------|-------------|-----------|
+| `DB_USERNAME` | `postgres` | Usuário do PostgreSQL |
+| `DB_PASSWORD` | `postgres` | Senha do PostgreSQL |
+| `POSTGRES_DB` | `taskmanager` | Nome do banco de dados criado pelo container |
+| `POSTGRES_USER` | `postgres` | Usuário do container PostgreSQL |
+| `POSTGRES_PASSWORD` | `postgres` | Senha do container PostgreSQL |
+| `POSTGRES_PORT` | `5432` | Porta exposta do container PostgreSQL |
 
-![Arquitetura de software](excalidraw/Arquitetura%20de%20software.png)
+## Recriar o banco do zero
 
-## Fluxo principal
+Para remover todos os dados e recriar o banco:
 
-![Fluxo de criação de tarefas](excalidraw/Fluxo%20de%20criação%20de%20tarefas.png)
+```bash
+docker compose down -v
+docker compose up -d
+```
 
-## Visão geral da aplicação
+## Estrutura do projeto
 
-![TaskManager](docs/Módulo_Inicial/TaskManager.png)
-
-## Observações
-
-- A aplicação usa SQLite local para persistência.
-- O layout foi criado com JavaFX + Scene Builder.
-- Para abrir a interface, a classe principal recomendada é `org.example.Main`.
+- `src/main/java/com/example/taskmanager/` — código-fonte da API
+  - `entity/` — entidades JPA
+  - `repository/` — repositórios Spring Data
+  - `service/` — regras de negócio
+  - `controller/` — endpoints REST
+  - `dto/` — objetos de transferência de dados
+  - `config/` — configurações da aplicação
+- `src/main/resources/` — propriedades e configurações
+- `src/test/java/` — testes automatizados (H2 em memória)
+- `docker-compose.yml` — PostgreSQL 17
