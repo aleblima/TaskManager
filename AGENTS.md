@@ -16,6 +16,13 @@ Se em algum momento for necessário alterar o comportamento do sistema ou adicio
 3. **Altere o código** para fazer os testes passarem.
 4. **Valide manualmente** sem commitar automaticamente. O commit é de responsabilidade do usuário.
 
+### Política de Testes
+
+* Os testes devem ser claros, simples e diretos, verificando comportamento observável em vez de detalhes de implementação.
+* Cada implementação deve manter cobertura de código mínima de **90%**.
+* Cada teste deve verificar um único critério de aceite, com nome que expresse esse critério.
+* Um teste não pode ser removido nem alterado apenas para fazê-lo passar. Alterações em testes são permitidas somente quando uma mudança aprovada na spec altera o contrato que ele verifica.
+
 ### Invariant Especial sobre ADRs:
 > ⚠️ **Sugerir ADR:** Se durante a modificação de uma spec, o agente ou o desenvolvedor identificar que as alterações tomadas contêm decisões de arquitetura transversais ou definitivas de infraestrutura que façam sentido virar um ADR, o agente **deve sugerir explicitamente essa criação** ao usuário para que ele possa revisar e validar a criação de um novo ADR antes de escrevê-lo.
 
@@ -60,6 +67,7 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/specs/dto-design.md` — Design de DTOs e validações
 - `docs/Modulo_Avancado/specs/repository-design.md` — Design dos Repositories
 - `docs/Modulo_Avancado/specs/service-design.md` — Design da camada de Services
+- `docs/Modulo_Avancado/specs/controller-design.md` — Design da camada HTTP, segurança JWT e controllers
 - `docs/Modulo_Avancado/specs/setup-desenvolvimento.md` — Setup de desenvolvimento e inicialização da API
 
 ### Registro de Decisões Arquiteturais (ADRs)
@@ -73,3 +81,4 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/adr/adr-008-configuracao-jpa.md` — Uso de ddl-auto=create-drop
 - `docs/Modulo_Avancado/adr/adr-009-mappers-manuais.md` — Mapeamento manual entre entidades e DTOs
 - `docs/Modulo_Avancado/adr/adr-010-ambiente-desenvolvimento-docker-compose.md` — Ambiente de desenvolvimento com Docker Compose
+- `docs/Modulo_Avancado/adr/adr-011-camada-http-e-versionamento-api.md` — Camada HTTP e versionamento da API

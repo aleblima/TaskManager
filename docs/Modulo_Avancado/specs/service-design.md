@@ -191,3 +191,12 @@ Classes anotadas com `@Component` para isolar a conversão entre DTOs e Entidade
 9. `src/main/java/com/example/taskmanager/service/impl/AuthServiceImpl.java`
 10. `src/main/java/com/example/taskmanager/service/impl/UsuarioServiceImpl.java`
 11. `src/main/java/com/example/taskmanager/service/impl/TarefaServiceImpl.java`
+
+---
+
+## Atualização de Decisões (2026-08-22)
+
+Esta seção registra evoluções posteriores sem remover as decisões que orientaram a implementação inicial.
+
+- **Username duplicado:** o registro de um username já existente deve resultar em `409 Conflict` na camada HTTP. O código de `401 Unauthorized` permanece reservado para credenciais inválidas, token ausente ou token inválido.
+- **Reabertura de tarefa:** `TarefaService` passa a expor `reabrir(Long id, String usernameAutenticado) -> TarefaResponseDTO`. A operação aplica as mesmas regras de autorização de escrita de `marcarComoConcluida` e garante `concluida = false` de forma idempotente.

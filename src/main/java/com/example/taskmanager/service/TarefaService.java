@@ -13,4 +13,5 @@ public interface TarefaService {
     TarefaResponseDTO atualizar(Long id, TarefaRequestDTO tarefaRequest, String usernameAutenticado);
     TarefaResponseDTO marcarComoConcluida(Long id, String usernameAutenticado);
     void deletar(Long id, String usernameAutenticado);
+    TarefaResponseDTO reabrir(Long id, String usernameAutenticado);
 }

@@ -122,4 +122,20 @@ public class TarefaServiceImpl implements TarefaService {
 
         tarefaRepository.delete(tarefa);
     }
+
+    @Override
+    @Transactional
+    public TarefaResponseDTO reabrir(Long id, String usernameAutenticado) {
+        Tarefa tarefa = tarefaRepository
+                .findByIdComRelacionamentos(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada"));
+
+        if (!tarefa.getUsuario().getUsername().equals(usernameAutenticado)) {
+            throw new AccessDeniedException("Acesso negado");
+        }
+
+        tarefa.setConcluida(false);
+        tarefa = tarefaRepository.save(tarefa);
+        return tarefaMapper.toDTO(tarefa);
+    }
 }
