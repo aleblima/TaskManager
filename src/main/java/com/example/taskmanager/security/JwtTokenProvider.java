@@ -1,6 +1,8 @@
 package com.example.taskmanager.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -28,5 +30,26 @@ public class JwtTokenProvider{
                 .expiration(new Date(agora.getTime() + expirationMs))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public boolean validarToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String getUsernameFromToken(String token) {
+        io.jsonwebtoken.Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getSubject();
     }
 }
