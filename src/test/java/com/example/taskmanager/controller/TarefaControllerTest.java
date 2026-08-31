@@ -68,6 +68,8 @@ class TarefaControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.titulo").value("Estudar"));
+
+        verify(tarefaService).criar(any(TarefaRequestDTO.class), eq("ana12345"));
     }
 
     @Test
@@ -138,6 +140,8 @@ class TarefaControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.titulo").value("Estudar Java"));
+
+        verify(tarefaService).atualizar(eq(1L), any(TarefaRequestDTO.class), eq("ana12345"));
     }
 
     @Test
@@ -163,6 +167,8 @@ class TarefaControllerTest {
         mockMvc.perform(patch("/api/v1/tarefas/1/concluir"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.concluida").value(true));
+
+        verify(tarefaService).marcarComoConcluida(1L, "ana12345");
     }
 
     @Test
@@ -185,6 +191,8 @@ class TarefaControllerTest {
         mockMvc.perform(patch("/api/v1/tarefas/1/reabrir"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.concluida").value(false));
+
+        verify(tarefaService).reabrir(1L, "ana12345");
     }
 
     @Test
@@ -204,19 +212,5 @@ class TarefaControllerTest {
 
         mockMvc.perform(delete("/api/v1/tarefas/1"))
                 .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(username = "ana12345")
-    void concluir_sem_body_retorna_200() throws Exception {
-        TarefaResponseDTO response = new TarefaResponseDTO(1L, "Estudar", "Desc", true,
-                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, 1L, "Cat");
-        when(tarefaService.marcarComoConcluida(1L, "ana12345")).thenReturn(response);
-
-        mockMvc.perform(patch("/api/v1/tarefas/1/concluir")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        verify(tarefaService).marcarComoConcluida(1L, "ana12345");
     }
 }
