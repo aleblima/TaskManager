@@ -22,6 +22,9 @@ Se em algum momento for necessário alterar o comportamento do sistema ou adicio
 * Cada implementação deve manter cobertura de código mínima de **90%**.
 * Cada teste deve verificar um único critério de aceite, com nome que expresse esse critério.
 * Um teste não pode ser removido nem alterado apenas para fazê-lo passar. Alterações em testes são permitidas somente quando uma mudança aprovada na spec altera o contrato que ele verifica.
+* **Caminho de código exclusivo:** todo teste deve exercitar um caminho de execução que nenhum outro teste já cobre (ex: uma condicional, um `@RequestBody` opcional, um ramo de erro específico). Antes de considerar um teste válido, deve ser possível responder "qual linha de código só este teste alcança?" — se a resposta for "nenhuma", o teste é redundante e deve ser sinalizado para remoção, nunca aceito por analogia com testes vizinhos.
+* **Nome expressa intenção, não sintaxe:** o nome do teste deve comunicar o comportamento/critério de aceite validado (ex: `reabrir_tarefa_alheia_retorna_403`), não detalhes de como a requisição foi montada (ex: `_sem_body`, `_com_parametro`) quando isso não corresponde a um caminho de código real no Controller/Service.
+* **Validação por quebra proposital:** ao criar ou auditar um teste, o critério de aceite é: alterar de propósito o comportamento que ele deveria proteger (ex: trocar um valor de retorno, um argumento, um status code) e confirmar que o teste falha. Um teste que não falha diante de nenhuma quebra plausível não está validando nada e deve ser revisto antes de ser aceito.
 
 ### Invariant Especial sobre ADRs:
 > ⚠️ **Sugerir ADR:** Se durante a modificação de uma spec, o agente ou o desenvolvedor identificar que as alterações tomadas contêm decisões de arquitetura transversais ou definitivas de infraestrutura que façam sentido virar um ADR, o agente **deve sugerir explicitamente essa criação** ao usuário para que ele possa revisar e validar a criação de um novo ADR antes de escrevê-lo.
@@ -50,6 +53,12 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 ### Escopo das Entidades
 *   **R-ESC-01 (Automático - ArchUnit):** `Categoria` possui apenas as camadas Entity e Repository. Sem DTO, Service ou Controller dedicados. É gerenciada internamente por `TarefaService`.
 *   **R-ESC-02 (Automático - ArchUnit):** `Usuario` e `Tarefa` possuem conjunto completo de camadas (Entity, Repository, Service, Controller, DTOs).
+
+### Qualidade dos Testes (Camada de Verificação)
+*   **R-TEST-01 (Revisão):** Nenhum teste é aceito (gerado por IA ou não) sem que exista um caminho de código exclusivo identificado para ele. Dois testes que exercitam a mesma linha de execução, com a mesma combinação de resultado esperado, são redundantes — mantém-se apenas um.
+*   **R-TEST-02 (Revisão):** Testes de Controller (`@WebMvcTest`/MockMvc) verificam exclusivamente o contrato HTTP (rota, binding de parâmetros, status code, serialização, autorização) com o Service mockado; a lógica de negócio (regras de transição de estado, cálculos, validações internas) é responsabilidade dos testes de Service e não deve ser reafirmada na camada de Controller.
+*   **R-TEST-03 (Revisão):** Testes de caminho feliz (sucesso) que dependem de argumentos extraídos do contexto (`@PathVariable`, SecurityContext/JWT) devem incluir `verify()` explícito sobre esses argumentos. Testes de caminho de erro cujo `thenThrow()` já depende do casamento exato dos argumentos do stub dispensam `verify()` adicional.
+*   **R-TEST-04 (Automático - Cobertura):** cobertura mínima de **90%** (conforme Política de Testes) é medida por linha de código exercitada, não por número de testes — testes redundantes não contam a favor da cobertura real.
 
 ### Segurança & Autorização
 *   **R-SEC-01 (Automático - Teste):** GET `/tarefas/{id}` em tarefa inexistente OU de outro usuário retorna **HTTP 404** (ResourceNotFoundException), ocultando a existência do recurso.
