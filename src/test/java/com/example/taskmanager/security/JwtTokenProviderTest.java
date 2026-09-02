@@ -14,9 +14,15 @@ class JwtTokenProviderTest {
             "tF7uW2pQ9mZx4R8vL1cD5kG0sH3jN6bY", 10800000);
 
     @Test
-    void gerarToken_retorna_token_nao_nulo() {
+    void gerarToken_tem_subject_e_expiracao_de_tres_horas() {
         String token = provider.gerarToken("ana12345");
-        assertTrue(token != null && !token.isEmpty());
+        io.jsonwebtoken.Claims claims = io.jsonwebtoken.Jwts.parser()
+                .verifyWith(io.jsonwebtoken.security.Keys.hmacShaKeyFor(
+                        "tF7uW2pQ9mZx4R8vL1cD5kG0sH3jN6bY".getBytes(java.nio.charset.StandardCharsets.UTF_8)))
+                .build().parseSignedClaims(token).getPayload();
+
+        assertEquals("ana12345", claims.getSubject());
+        assertEquals(10_800_000L, claims.getExpiration().getTime() - claims.getIssuedAt().getTime());
     }
 
     @Test

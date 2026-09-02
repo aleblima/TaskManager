@@ -93,6 +93,8 @@ class TarefaControllerTest {
         mockMvc.perform(get("/api/v1/tarefas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].titulo").value("Estudar"));
+
+        verify(tarefaService).listarTodas("ana12345");
     }
 
     @Test
@@ -104,6 +106,8 @@ class TarefaControllerTest {
         mockMvc.perform(get("/api/v1/tarefas/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
+
+        verify(tarefaService).buscarPorId(1L, "ana12345");
     }
 
     @Test
@@ -113,16 +117,6 @@ class TarefaControllerTest {
                 .thenThrow(new ResourceNotFoundException("Tarefa não encontrada"));
 
         mockMvc.perform(get("/api/v1/tarefas/99"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(username = "ana12345")
-    void buscarPorId_tarefa_alheia_retorna_404() throws Exception {
-        when(tarefaService.buscarPorId(1L, "ana12345"))
-                .thenThrow(new ResourceNotFoundException("Tarefa não encontrada"));
-
-        mockMvc.perform(get("/api/v1/tarefas/1"))
                 .andExpect(status().isNotFound());
     }
 
@@ -193,6 +187,16 @@ class TarefaControllerTest {
                 .andExpect(jsonPath("$.concluida").value(false));
 
         verify(tarefaService).reabrir(1L, "ana12345");
+    }
+
+    @Test
+    @WithMockUser(username = "ana12345")
+    void reabrir_tarefa_alheia_retorna_403() throws Exception {
+        when(tarefaService.reabrir(1L, "ana12345"))
+                .thenThrow(new AccessDeniedException("Acesso negado"));
+
+        mockMvc.perform(patch("/api/v1/tarefas/1/reabrir"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
