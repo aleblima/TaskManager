@@ -109,6 +109,26 @@ mvnw.cmd test
 
 O comando executa a suíte com H2 em memória e falha se a cobertura de linhas ficar abaixo de 90%.
 
+## Integração contínua
+
+Todo Pull Request destinado a `main` executa o workflow **CI** no GitHub
+Actions. Ele possui três checks:
+
+- `test` executa `sh ./mvnw test`, incluindo ArchUnit e JaCoCo com cobertura
+  mínima de 90%.
+- `dependency-review` bloqueia dependências novas com vulnerabilidades high ou
+  critical.
+- `codeql` analisa o código Java e publica achados na aba **Security**; nesta
+  etapa ele é informativo e não bloqueia merges.
+
+O relatório HTML do JaCoCo, quando gerado, fica disponível como o artefato
+`jacoco-report` na execução do workflow. Abra o Pull Request, selecione
+**Checks** e abra o job com falha para consultar os logs ou baixar o artefato.
+
+Após a primeira execução bem-sucedida, habilite o Dependency graph em
+**Settings → Advanced Security** e, no ruleset aplicado à `main`, exija os
+checks `test` e `dependency-review`. Não exija `codeql` nesta fase.
+
 ## Estrutura e documentação técnica
 
 - `src/main/java/com/example/taskmanager/` — API, organizada em controllers, services, repositories, entities, DTOs, mappers e segurança.

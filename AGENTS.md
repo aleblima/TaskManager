@@ -78,6 +78,7 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/specs/service-design.md` — Design da camada de Services
 - `docs/Modulo_Avancado/specs/controller-design.md` — Design da camada HTTP, segurança JWT e controllers
 - `docs/Modulo_Avancado/specs/setup-desenvolvimento.md` — Setup de desenvolvimento e inicialização da API
+- `docs/Modulo_Avancado/specs/ci-github-actions-design.md` — Esteira de integração contínua, segurança e ruleset
 
 ### Registro de Decisões Arquiteturais (ADRs)
 - `docs/Modulo_Avancado/adr/adr-001-migracao-api-rest.md` — Escolha do paradigma REST
@@ -91,3 +92,4 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/adr/adr-009-mappers-manuais.md` — Mapeamento manual entre entidades e DTOs
 - `docs/Modulo_Avancado/adr/adr-010-ambiente-desenvolvimento-docker-compose.md` — Ambiente de desenvolvimento com Docker Compose
 - `docs/Modulo_Avancado/adr/adr-011-camada-http-e-versionamento-api.md` — Camada HTTP e versionamento da API
+- `docs/Modulo_Avancado/adr/adr-012-integracao-continua-github-actions.md` — Adoção de CI com GitHub Actions
