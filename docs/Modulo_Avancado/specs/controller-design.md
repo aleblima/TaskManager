@@ -83,7 +83,7 @@ Não haverá configuração CORS nesta etapa. A política de origens será defin
 
 ## 3. Erros e Validação
 
-`GlobalExceptionHandler`, a entrada de autenticação e o handler de acesso negado devem produzir respostas RFC 9457 `ProblemDetail`.
+`GlobalExceptionHandler`, a entrada de autenticação e o handler de acesso negado devem produzir respostas RFC 9457 `ProblemDetail`. Para 401 de token ausente ou inválido, a resposta usa `application/problem+json` sem expor detalhes internos.
 
 | Situação | Status | Regra |
 |----------|--------|-------|
