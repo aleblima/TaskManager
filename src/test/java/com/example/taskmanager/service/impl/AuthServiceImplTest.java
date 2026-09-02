@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.ArgumentCaptor;
 
 class AuthServiceImplTest {
 
@@ -52,7 +53,10 @@ class AuthServiceImplTest {
         assertNotNull(resposta);
         assertEquals("Ana", resposta.nome());
         assertEquals("ana12345", resposta.username());
-        verify(usuarioRepository).save(any(Usuario.class));
+        ArgumentCaptor<Usuario> usuarioSalvo = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioRepository).save(usuarioSalvo.capture());
+        assertEquals("senha123cripto", usuarioSalvo.getValue().getSenha());
+        verify(passwordEncoder).encode("senha123");
     }
 
     @Test

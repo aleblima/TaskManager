@@ -110,7 +110,7 @@ Não haverá configuração CORS nesta etapa. A política de origens será defin
 
 Os testes devem ser claros, simples e diretos; cada um verifica um único critério de aceite e não deve ser alterado ou removido apenas para passar.
 
-1. Registro e login são públicos; os demais endpoints exigem JWT.
+1. Registro e login são públicos; os demais endpoints exigem JWT. Requisições sem token ou com token inválido retornam 401.
 2. Login válido retorna token; credenciais inválidas retornam 401.
 3. Registro com username existente retorna 409.
 4. Erros de Bean Validation retornam 400 com `ProblemDetail.errors`.
@@ -118,7 +118,7 @@ Os testes devem ser claros, simples e diretos; cada um verifica um único crité
 6. Cada rota de tarefa delega ao método correto do service e usa apenas DTOs no contrato HTTP.
 7. GET de tarefa inexistente ou alheia retorna 404.
 8. PUT, PATCH e DELETE de tarefa alheia retornam 403.
-9. Concluir e reabrir são idempotentes e não aceitam request body.
+9. Concluir e reabrir são idempotentes e não aceitam request body; ambos retornam 403 para tarefa alheia.
 10. DELETE retorna 204 sem corpo.
 11. Swagger UI e OpenAPI são públicos; a documentação indica Bearer JWT nas rotas protegidas.
 12. A cobertura de código da implementação de controllers e segurança deve ser, no mínimo, 90%.

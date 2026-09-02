@@ -72,6 +72,21 @@ class TarefaServiceImplTest {
         verify(tarefaRepository, never()).save(any());
     }
 
+    @Test
+    void criar_tarefa_com_categoria_nova_persiste_categoria() {
+        Usuario usuario = new Usuario(1L, "Ana", "ana12345", "senha");
+        Categoria categoria = new Categoria(2L, "Nova");
+        TarefaRequestDTO request = new TarefaRequestDTO("Tarefa", "Descricao", "Nova");
+        when(usuarioRepository.findByUsername("ana12345")).thenReturn(Optional.of(usuario));
+        when(categoriaRepository.findByNomeIgnoreCase("Nova")).thenReturn(Optional.empty());
+        when(categoriaRepository.save(any(Categoria.class))).thenReturn(categoria);
+        when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        tarefaService.criar(request, "ana12345");
+
+        verify(categoriaRepository).save(any(Categoria.class));
+    }
+
     // --- listarTodas ---
 
     @Test
@@ -186,6 +201,15 @@ class TarefaServiceImplTest {
     }
 
     @Test
+    void marcarComoConcluida_tarefa_ja_concluida_permanece_concluida() {
+        Tarefa tarefa = tarefaDoUsuario("ana12345", true);
+        when(tarefaRepository.findByIdComRelacionamentos(1L)).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.save(tarefa)).thenReturn(tarefa);
+
+        assertTrue(tarefaService.marcarComoConcluida(1L, "ana12345").concluida());
+    }
+
+    @Test
     void marcarComoConcluida_tarefa_inexistente_lanca_excecao() {
         when(tarefaRepository.findByIdComRelacionamentos(1L)).thenReturn(Optional.empty());
 
@@ -248,6 +272,15 @@ class TarefaServiceImplTest {
 
         assertFalse(resposta.concluida());
         verify(tarefaRepository).save(tarefa);
+    }
+
+    @Test
+    void reabrir_tarefa_ja_pendente_permanece_pendente() {
+        Tarefa tarefa = tarefaDoUsuario("ana", false);
+        when(tarefaRepository.findByIdComRelacionamentos(1L)).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.save(tarefa)).thenReturn(tarefa);
+
+        assertFalse(tarefaService.reabrir(1L, "ana").concluida());
     }
 
     @Test
