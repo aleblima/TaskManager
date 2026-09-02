@@ -15,7 +15,7 @@ O escopo é exclusivamente documentação/configuração OpenAPI e seus testes d
 | Tema | Decisão |
 |---|---|
 | Biblioteca | Manter `org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2`, já declarada no `pom.xml`. Não adicionar outra biblioteca de OpenAPI. |
-| Documento e UI | Manter os caminhos padrão do Springdoc: JSON em `/v3/api-docs` e UI em `/swagger-ui/index.html`. Ambos são públicos. |
+| Documento e UI | Manter o JSON em `/v3/api-docs` e expor a UI em `/docs`. Ambos são públicos. |
 | Identidade | `info.title = "TaskManager API"`, `info.version = "v1"` e uma descrição curta em português explicando que a API administra tarefas do usuário autenticado. Não inventar contato, licença ou URL de servidor. |
 | Segurança | Declarar um único esquema chamado `bearerAuth`, do tipo HTTP, scheme `bearer` e `bearerFormat` `JWT`. Não criar API key, OAuth2, cookie ou esquema alternativo. |
 | Aplicação da segurança | Não usar requisito de segurança global. Aplicar `bearerAuth` no nível de classe dos controllers `UsuarioController` e `TarefaController`; `AuthController` fica explicitamente sem requisito. Assim, as duas operações de autenticação aparecem públicas e todas as operações dos outros dois grupos exigem Bearer. |
@@ -131,7 +131,7 @@ Antes de escrever cada teste, registrar a quebra que ele deve detectar. Cada cas
 | `documentacao_openapi_publica_expoe_metadados_e_esquema_bearer` | `GET /v3/api-docs` sem `Authorization` retorna `200`; JSON contém `info.title = "TaskManager API"`, `info.version = "v1"`, `components.securitySchemes.bearerAuth.type = "http"`, `.scheme = "bearer"` e `.bearerFormat = "JWT"`. | Remover a regra pública, o bean OpenAPI, os metadados ou configurar incorretamente o esquema JWT. |
 | `documentacao_openapi_separa_operacoes_publicas_das_protegidas` | No JSON de `/v3/api-docs`, `POST /api/v1/auth/login` e `POST /api/v1/auth/registro` não têm requisito de segurança; `GET /api/v1/usuarios/me` e ao menos uma operação em `/api/v1/tarefas` têm `security[0].bearerAuth`. | Aplicar Bearer globalmente, esquecer a proteção documentada ou marcar autenticação como protegida. |
 | `documentacao_openapi_expoe_respostas_de_erro_do_contrato` | No JSON, verificar uma operação representativa de cada ramo: login contém `400` e `401`; busca de tarefa contém `404`, mas não `403`; atualização contém `400`, `401`, `403` e `404`; cada resposta de erro aponta para `ProblemDetail`. | Omitir status, expor `403` no GET que deve ocultar recurso, ou documentar um schema de erro diferente. |
-| `swagger_ui_publica_fica_disponivel_sem_jwt` | `GET /swagger-ui/index.html` sem `Authorization` retorna `200` e content type HTML compatível. | Remover a permissão da UI ou alterar indevidamente o caminho. |
+| `swagger_ui_publica_fica_disponivel_sem_jwt` | `GET /docs` sem `Authorization` retorna `302` para `/swagger-ui/index.html`. | Remover a permissão da UI ou alterar indevidamente o caminho. |
 
 Para os JSONPaths de requisitos de segurança, prefira selecionar a operação pelo caminho e método, por exemplo `$.paths['/api/v1/tarefas'].get.security[0].bearerAuth`. Não confirme apenas a presença textual de `bearerAuth` em qualquer lugar do documento: isso não prova sua associação às operações corretas.
 
@@ -149,7 +149,7 @@ O resultado esperado é falha causada pela ausência de metadados, segurança po
 
 1. Criar `OpenApiConfig` exatamente como definido nesta spec.
 2. Adicionar as anotações de tags, segurança, operações, parâmetros e respostas aos três controllers, sem mudar as assinaturas ou seus corpos.
-3. Não alterar `SecurityConfig`, pois ela já libera `/swagger-ui/**` e `/v3/api-docs/**`; qualquer alteração só é aceitável se o teste real demonstrar que uma URL exigida não está pública.
+3. Configurar `springdoc.swagger-ui.path=/docs` e liberar `/docs`, mantendo a liberação de `/swagger-ui/**` para os assets e de `/v3/api-docs/**` para o documento JSON.
 4. Reexecutar a classe de teste após cada pequena alteração até todos os quatro comportamentos passarem.
 
 ### 4. Refatorar e validar
@@ -168,11 +168,11 @@ O resultado esperado é falha causada pela ausência de metadados, segurança po
 ```
 
 4. Executar a ferramenta de cobertura configurada no projeto e confirmar mínimo de 90% por linha. Se não existir plugin de cobertura no `pom.xml`, registrar essa lacuna ao usuário; não alegar conformidade sem medição.
-5. Fazer a validação manual: iniciar a aplicação, abrir `/swagger-ui/index.html`, registrar usuário, executar login, copiar apenas o valor de `token`, autorizar como Bearer, criar/listar uma tarefa e confirmar que a requisição protegida inclui `Authorization: Bearer <token>`.
+5. Fazer a validação manual: iniciar a aplicação, abrir `/docs`, registrar usuário, executar login, copiar apenas o valor de `token`, autorizar como Bearer, criar/listar uma tarefa e confirmar que a requisição protegida inclui `Authorization: Bearer <token>`.
 
 ## Critérios de aceite verificáveis
 
-1. `/v3/api-docs` e `/swagger-ui/index.html` retornam `200` sem JWT quando os filtros de segurança estão ativos.
+1. `/v3/api-docs` retorna `200` e `/docs` redireciona para a UI sem JWT quando os filtros de segurança estão ativos.
 2. O documento declara `TaskManager API`, versão `v1`, descrição em português e exatamente o esquema HTTP Bearer `bearerAuth` com formato `JWT`.
 3. Login e registro são documentados sem requisito de segurança; as operações de usuário e tarefa são documentadas com `bearerAuth`.
 4. A UI agrupa as operações nas tags `Autenticação`, `Usuários` e `Tarefas`.

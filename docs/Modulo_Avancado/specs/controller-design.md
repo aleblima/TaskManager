@@ -65,7 +65,7 @@ Os controllers nunca recebem nem retornam entidades JPA. O `username` é lido do
 
 ### 2.1 Política de acesso
 
-São públicas apenas as rotas de registro e login, além da documentação em `/swagger-ui/index.html` e `/v3/api-docs`.
+São públicas apenas as rotas de registro e login, além da documentação em `/docs` e `/v3/api-docs`.
 
 Todas as demais rotas exigem um header `Authorization` no formato `Bearer <JWT>`.
 
@@ -102,7 +102,7 @@ Não haverá configuração CORS nesta etapa. A política de origens será defin
 A configuração detalhada, as anotações por endpoint, a matriz de respostas e o roteiro de teste estão definidos em [openapi-swagger-design.md](./openapi-swagger-design.md). Esse documento é normativo para a implementação desta seção.
 
 - Springdoc deve documentar os endpoints HTTP e os DTOs de request/response.
-- Swagger UI fica disponível publicamente em `/swagger-ui/index.html`.
+- Swagger UI fica disponível publicamente em `/docs`.
 - A especificação OpenAPI fica disponível publicamente em `/v3/api-docs`.
 - A documentação deve indicar Bearer JWT como esquema de segurança das operações protegidas.
 

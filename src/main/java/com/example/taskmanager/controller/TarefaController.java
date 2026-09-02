@@ -48,7 +48,7 @@ public class TarefaController {
             @ApiResponse(responseCode = "201", description = "Tarefa criada", content = @Content(schema = @Schema(implementation = TarefaResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Corpo inválido. A propriedade 'errors' mapeia campo para mensagem.", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "401", description = "JWT ausente, inválido ou expirado", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Categoria inexistente", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<TarefaResponseDTO> criar(@Valid @RequestBody TarefaRequestDTO request) {
         TarefaResponseDTO response = tarefaService.criar(request, getUsername());
@@ -85,7 +85,7 @@ public class TarefaController {
             @ApiResponse(responseCode = "400", description = "Corpo inválido. A propriedade 'errors' mapeia campo para mensagem.", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "401", description = "JWT ausente, inválido ou expirado", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Tarefa de outro usuário", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Tarefa ou categoria inexistente", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "404", description = "Tarefa inexistente", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<TarefaResponseDTO> atualizar(
             @Parameter(description = "Identificador da tarefa", required = true) @PathVariable Long id,
