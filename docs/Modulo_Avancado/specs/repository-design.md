@@ -116,6 +116,7 @@ Optional<Tarefa> findByIdComRelacionamentos(@Param("id") Long id);
 - Todos os relacionamentos (`Tarefa→Usuario`, `Tarefa→Categoria`) são `FetchType.LAZY`
 - Queries de leitura usam `JOIN FETCH` explícito para carregar relacionamentos
 - Operações de escrita não precisam de `JOIN FETCH` — o service já tem a entidade carregada
+- `spring.jpa.open-in-view=false`; testes de repository devem verificar as relações inicializadas fora de transação aberta.
 
 ### Case-insensitivity de categorias
 
