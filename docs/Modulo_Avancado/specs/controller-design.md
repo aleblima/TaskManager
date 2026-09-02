@@ -99,6 +99,8 @@ Não haverá configuração CORS nesta etapa. A política de origens será defin
 
 ## 4. OpenAPI
 
+A configuração detalhada, as anotações por endpoint, a matriz de respostas e o roteiro de teste estão definidos em [openapi-swagger-design.md](./openapi-swagger-design.md). Esse documento é normativo para a implementação desta seção.
+
 - Springdoc deve documentar os endpoints HTTP e os DTOs de request/response.
 - Swagger UI fica disponível publicamente em `/swagger-ui/index.html`.
 - A especificação OpenAPI fica disponível publicamente em `/v3/api-docs`.
