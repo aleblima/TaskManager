@@ -29,7 +29,21 @@ API REST para gerenciar tarefas do usuário autenticado. É construída em Java 
 docker compose up -d
 ```
 
-2. Inicie a API:
+2. Defina a chave usada para assinar os tokens JWT:
+
+   Linux/macOS:
+
+   ```bash
+   export JWT_SECRET='sua-chave-gerada-com-pelo-menos-32-bytes'
+   ```
+
+   Windows:
+
+   ```bat
+   set JWT_SECRET=sua-chave-gerada-com-pelo-menos-32-bytes
+   ```
+
+3. Inicie a API:
 
    Linux/macOS:
 
@@ -43,7 +57,7 @@ docker compose up -d
    mvnw.cmd spring-boot:run
    ```
 
-3. Abra [`http://localhost:8080/docs`](http://localhost:8080/docs). O endereço redireciona para a interface Swagger.
+4. Abra [`http://localhost:8080/docs`](http://localhost:8080/docs). O endereço redireciona para a interface Swagger.
 
 ## Primeiro uso
 

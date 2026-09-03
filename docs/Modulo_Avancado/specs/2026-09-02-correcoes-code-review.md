@@ -17,7 +17,6 @@
 - `TarefaResponseDTO` expõe de `Usuario` e `Categoria` somente `id` e `nome`.
 - A API continua JWT stateless; CSRF permanece desabilitado intencionalmente.
 - O banco de desenvolvimento só é publicado em `127.0.0.1:5433`; a aplicação usa variáveis `DB_*` e o contêiner usa `POSTGRES_*`.
-- Não versionar `../../../qodana.yaml`, pois é arquivo local ainda não incluído pelo usuário.
 
 ---
 
@@ -226,8 +225,6 @@ Run: `rtk git diff --check`
 Expected: exit code 0.
 
 Run: `rtk git status --short`
-
-Expected: `../../../qodana.yaml` continua sem stage; somente fontes, testes, docs, workflow e Compose aprovados aparecem como mudanças do trabalho.
 
 ## Self-Review
 
