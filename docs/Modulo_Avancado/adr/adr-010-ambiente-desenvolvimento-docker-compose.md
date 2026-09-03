@@ -11,7 +11,8 @@ A API depende de PostgreSQL para iniciar no ambiente de desenvolvimento. Exigir 
 
 Adotamos Docker Compose para disponibilizar exclusivamente o PostgreSQL de desenvolvimento, enquanto a aplicação Spring Boot continua sendo executada no host pelo Maven Wrapper.
 
-1. O Compose utilizará uma imagem fixada em PostgreSQL 17, expondo a porta `5432`.
+1. O Compose utilizará uma imagem fixada em PostgreSQL 17, expondo a porta do
+   host `5433` exclusivamente em `127.0.0.1`.
 2. A configuração padrão criará o banco `taskmanager` com usuário e senha `postgres`, permitindo sobrescrita por variáveis de ambiente.
 3. Um volume nomeado preservará os dados do serviço PostgreSQL entre reinicializações do container. O Hibernate continua responsável apenas pelo schema, usando `ddl-auto=create-drop`.
 4. O Maven Wrapper será corrigido de forma pontual e será o comando oficial para compilar e executar a aplicação localmente.

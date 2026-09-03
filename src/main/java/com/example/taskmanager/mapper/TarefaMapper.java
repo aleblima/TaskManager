@@ -18,6 +18,7 @@ public class TarefaMapper {
                 tarefa.getConcluida(),
                 tarefa.getDataCriacao(),
                 tarefa.getUsuario().getId(),
+                tarefa.getUsuario().getNome(),
                 tarefa.getCategoria().getId(),
                 tarefa.getCategoria().getNome());
     }

@@ -4,11 +4,11 @@
 
 **Goal:** Bloquear merges de Pull Requests para `main` quando testes ou revisão de dependências falharem, mantendo CodeQL e o relatório JaCoCo como diagnósticos.
 
-**Architecture:** Um workflow único, `.github/workflows/ci.yml`, é acionado apenas por `pull_request` para `main`. Seus jobs independentes são `test`, `dependency-review` e `codeql`; somente os dois primeiros serão configurados posteriormente no ruleset. O Maven continua sendo a fonte de verdade da qualidade Java, e o GitHub apenas executa e apresenta seus resultados.
+**Architecture:** Um workflow único, `../../../.github/workflows/ci.yml`, é acionado apenas por `pull_request` para `main`. Seus jobs independentes são `test`, `dependency-review` e `codeql`; somente os dois primeiros serão configurados posteriormente no ruleset. O Maven continua sendo a fonte de verdade da qualidade Java, e o GitHub apenas executa e apresenta seus resultados.
 
-**Tech Stack:** GitHub Actions, Java 21, Maven Wrapper 3.9.16, JaCoCo, GitHub Dependency Review, GitHub CodeQL.
+**Tech Stack:** GitHub Actions, Java 21, Maven Wrapper 3.3.4, distribuição Maven 3.9.16, JaCoCo, GitHub Dependency Review, GitHub CodeQL.
 
-**Spec:** `docs/Modulo_Avancado/specs/ci-github-actions-design.md`
+**Spec:** `ci-github-actions-design.md`
 
 ## Global Constraints
 
@@ -25,18 +25,18 @@
 
 ## Estrutura de arquivos
 
-- Criar `.github/workflows/ci.yml`: workflow de CI com os três jobs e o upload do relatório JaCoCo.
-- Modificar `README.md`: explicar o gatilho, os checks, o relatório de cobertura e a configuração única do ruleset.
+- Criar `../../../.github/workflows/ci.yml`: workflow de CI com os três jobs e o upload do relatório JaCoCo.
+- Modificar `../../../README.md`: explicar o gatilho, os checks, o relatório de cobertura e a configuração única do ruleset.
 - Criar `docs/superpowers/plans/2026-09-02-ci-github-actions.md`: este roteiro de implementação e bootstrap.
 
 ### Task 1: Versionar o workflow de CI
 
 **Files:**
-- Create: `.github/workflows/ci.yml`
+- Create: `../../../.github/workflows/ci.yml`
 - Test: execução automática em Pull Request para `main`, observada na aba **Checks** do GitHub.
 
 **Interfaces:**
-- Consumes: `pom.xml`, que associa testes, ArchUnit e JaCoCo à fase Maven `test`.
+- Consumes: `../../../pom.xml`, que associa testes, ArchUnit e JaCoCo à fase Maven `test`.
 - Produces: checks GitHub Actions chamados `test`, `dependency-review` e `codeql`; artefato `jacoco-report`.
 
 - [ ] **Step 1: Criar o workflow com o gatilho e permissões mínimas**
@@ -118,8 +118,8 @@ Expected: saída Maven com sucesso e JaCoCo sem violação do mínimo de 0.90; o
 ### Task 2: Documentar a operação da CI
 
 **Files:**
-- Modify: `README.md` (adicionar seção `## Integração contínua` depois de `## Testes`)
-- Test: revisão do Markdown renderizado e da coerência com `.github/workflows/ci.yml`.
+- Modify: `../../../README.md` (adicionar seção `## Integração contínua` depois de `## Testes`)
+- Test: revisão do Markdown renderizado e da coerência com `../../../.github/workflows/ci.yml`.
 
 **Interfaces:**
 - Consumes: checks e artefato definidos na Task 1.

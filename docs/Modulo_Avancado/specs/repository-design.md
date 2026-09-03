@@ -27,14 +27,13 @@ Categorias são **case-insensitive** ("trabalho" = "Trabalho").
 
 | Método | Tipo de retorno | Descrição |
 |--------|----------------|-----------|
-| `findByNomeIgnoreCase(String nome)` | `Optional<Categoria>` | Busca categoria por nome, ignorando caixa |
+| `findByNomeNormalizado(String nomeNormalizado)` | `Optional<Categoria>` | Busca categoria pela chave técnica normalizada |
 
 **Extends:** `JpaRepository<Categoria, Long>`
 
 **Justificativa para método derivado:** O Spring Data gera automaticamente
-a query `WHERE LOWER(c.nome) = LOWER(:nome)`, suportado tanto pelo H2
-(testes) quanto pelo PostgreSQL (produção). Sem necessidade de `@Query`
-customizado.
+a query pela coluna única `nome_normalizado`, suportada tanto pelo H2 (testes)
+quanto pelo PostgreSQL (produção). Sem necessidade de `@Query` customizado.
 
 ---
 
@@ -120,9 +119,12 @@ Optional<Tarefa> findByIdComRelacionamentos(@Param("id") Long id);
 
 ### Case-insensitivity de categorias
 
-- Implementada via método derivado `findByNomeIgnoreCase` no `CategoriaRepository`
-- O Spring Data gera `WHERE LOWER(nome) = LOWER(:nome)` automaticamente
-- Funciona tanto no H2 (testes) quanto no PostgreSQL (produção)
+- Implementada pela coluna única `nomeNormalizado` e pelo método derivado
+  `findByNomeNormalizado` no `CategoriaRepository`
+- O service calcula a chave com `trim().toLowerCase(Locale.ROOT)` antes da
+  consulta e da criação
+- Funciona tanto no H2 (testes) quanto no PostgreSQL (produção), inclusive
+  quando duas requisições tentam criar a mesma categoria concorrentemente
 
 ---
 

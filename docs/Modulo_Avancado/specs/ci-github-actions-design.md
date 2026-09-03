@@ -40,6 +40,8 @@ segredos de ambiente ou banco externo nesta decisão.
 - Declarar permissões mínimas: leitura de conteúdo como padrão; o job CodeQL
   recebe adicionalmente a permissão estritamente necessária para publicar seus
   resultados de análise.
+- Configurar `persist-credentials: false` em cada checkout, pois nenhum job
+  precisa executar operações Git autenticadas após baixar o código do PR.
 - Não usar `pull_request_target`, segredos, banco PostgreSQL, Docker nem
   credenciais externas. Os testes usam H2 no perfil de teste.
 

@@ -32,7 +32,8 @@ Disponibilizar um ambiente de desenvolvimento reproduzível em que Docker Compos
 
 - O Compose deve conter somente o serviço PostgreSQL; a API Java não será conteinerizada nesta etapa.
 - A imagem deve ser fixada em PostgreSQL 17, sem usar a tag `latest`.
-- A porta do container deve ser publicada em `localhost:5432`.
+- A porta do container deve ser publicada exclusivamente em
+  `127.0.0.1:5433`, impedindo acesso de outros hosts à instância local.
 - Os valores padrão são banco `taskmanager`, usuário `postgres` e senha `postgres`.
 - As configurações do banco no Compose devem aceitar sobrescrita por variáveis de ambiente, preservando os valores padrão acima.
 - O serviço deve usar um volume nomeado para o diretório de dados do PostgreSQL. A remoção do volume é o mecanismo explícito para recriar o banco do zero.
@@ -40,7 +41,10 @@ Disponibilizar um ambiente de desenvolvimento reproduzível em que Docker Compos
 ### Configuração Spring e dependências
 
 - `application.properties` continua usando PostgreSQL como datasource principal e preserva `spring.jpa.hibernate.ddl-auto=create-drop`.
-- `DB_USERNAME` e `DB_PASSWORD` continuam sendo a forma de sobrescrever as credenciais lidas pela aplicação.
+- `DB_USERNAME` e `DB_PASSWORD` continuam sendo a forma de sobrescrever as
+  credenciais lidas pela aplicação; `POSTGRES_USER` e `POSTGRES_PASSWORD`
+  configuram o container. Quando personalizados, os pares devem receber valores
+  equivalentes para a aplicação autenticar no banco criado pelo Compose.
 - H2 e `application-test.properties` permanecem exclusivos ao escopo de testes.
 - Atualizar Springdoc para a versão fixa `3.0.2`, compatível com a linha Spring Boot 4.x; não introduzir configuração OpenAPI, controllers ou endpoints nesta etapa.
 
@@ -54,7 +58,7 @@ Disponibilizar um ambiente de desenvolvimento reproduzível em que Docker Compos
 ## Decisões de Teste e Validação
 
 - Esta etapa não cria nem executa testes automatizados de integridade; eles serão realizados após a aplicação iniciar corretamente.
-- A validação de bootstrap deve confirmar que o Maven Wrapper conclui a compilação com testes ignorados, que o Compose disponibiliza PostgreSQL na porta 5432 e que a aplicação inicia sem falha de criação de beans ou conexão.
+- A validação de bootstrap deve confirmar que o Maven Wrapper conclui a compilação com testes ignorados, que o Compose disponibiliza PostgreSQL somente em `127.0.0.1:5433` e que a aplicação inicia sem falha de criação de beans ou conexão.
 - Os logs de inicialização devem evidenciar a conexão com PostgreSQL e a criação do schema pelo Hibernate. Ao encerrar a aplicação, o comportamento esperado de `create-drop` é remover as tabelas, sem remover o banco ou o volume do container.
 
 ## Fora do Escopo
@@ -67,7 +71,7 @@ Disponibilizar um ambiente de desenvolvimento reproduzível em que Docker Compos
 
 ## Critérios de Aceite
 
-1. O PostgreSQL 17 pode ser iniciado pelo Compose e aceita conexões em `localhost:5432` usando os valores padrão.
+1. O PostgreSQL 17 pode ser iniciado pelo Compose e aceita conexões em `127.0.0.1:5433` usando os valores padrão, sem publicar a porta em outras interfaces.
 2. O Maven Wrapper deixa de falhar durante a descoberta ou download do Maven.
 3. A compilação por `mvnw.cmd -DskipTests compile` é concluída.
 4. A execução por `mvnw.cmd spring-boot:run` inicia o contexto Spring conectado ao PostgreSQL.

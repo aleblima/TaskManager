@@ -37,6 +37,7 @@ class JwtAuthenticationFilterTest {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("ana12345",
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        verify(jwtTokenProvider).getUsernameFromToken("token-valido");
         verify(chain).doFilter(request, response);
     }
 

@@ -33,10 +33,11 @@ Usado para **GET** `/tarefas` (listagem) e **GET** `/tarefas/{id}` (detalhe). Co
 | concluida | Boolean | Status de conclusão |
 | dataCriacao | LocalDateTime | Data de criação (auto-preenchida) |
 | usuarioId | Long | ID do dono (não expõe objeto Usuario completo) |
+| usuarioNome | String | Nome do dono, sem expor o objeto Usuario |
 | categoriaId | Long | ID da categoria |
 | categoriaNome | String | Nome da categoria (denormalização para conveniência do frontend) |
 
-### LoginRequest
+### LoginRequestDTO
 
 Usado para **POST** `/auth/login`.
 
@@ -45,7 +46,7 @@ Usado para **POST** `/auth/login`.
 | username | String | `@NotBlank` |
 | senha | String | `@NotBlank` |
 
-### LoginResponse
+### LoginResponseDTO
 
 Usado para **POST** `/auth/login`. Conforme AGENTS.md: "Apenas token e nome — sem outros dados".
 
@@ -54,14 +55,14 @@ Usado para **POST** `/auth/login`. Conforme AGENTS.md: "Apenas token e nome — 
 | token | String | JWT assinado |
 | nome | String | Nome real do usuário |
 
-### RegistroRequest
+### RegistroRequestDTO
 
 Usado para **POST** `/auth/registro`.
 
 | Campo | Tipo | Validação | Observação |
 |-------|------|-----------|------------|
 | nome | String | `@NotBlank`, `@Size(max=75)` | Nome real do usuário |
-| username | String | `@Size(min=8, max=15)` | Identificador único para login (tamanho impede blank) |
+| username | String | `@NotBlank`, `@Size(min=8, max=15)` | Identificador único para login |
 | senha | String | `@NotBlank`, `@Size(min=6)` | Senha em texto plano (service aplica BCrypt) |
 
 **Nota:** RequestDTO de senha NUNCA é reaproveitado como ResponseDTO — senha jamais aparece em nenhuma resposta da API.
@@ -100,21 +101,25 @@ Usado para **GET** `/usuarios/me`.
 - Service layer decide quais campos aplicar no caso de PUT (campos divergentes)
 
 ### Referências em ResponseDTOs
-- `TarefaResponseDTO` referencia `Usuario` e `Categoria` apenas por `id` (Long), nunca pelo objeto completo
-- `categoriaNome` é incluído por denormalização (conveniência para o frontend)
+- `TarefaResponseDTO` referencia `Usuario` e `Categoria` apenas por `id` (Long)
+  e `nome` (String), nunca pelo objeto completo
+- `usuarioNome` e `categoriaNome` são incluídos por denormalização para o
+  consumidor HTTP
 
 ### Fluxo de autenticação e usuarioId
 - O `usuarioId` em operações de tarefas vem do JWT/SecurityContext, nunca do corpo da requisição
 - Não deve existir rota como `/tarefas?usuarioId=X` ou `/usuarios/{id}/tarefas`
-- `RegistroRequest` NÃO inclui `usuarioNome` — o usuário autenticado é obtido via token
+- `RegistroRequestDTO` não inclui `usuarioId` nem `usuarioNome`; `POST
+  /auth/registro` é público e cria o usuário antes de existir token ou usuário
+  autenticado
 
 ## Arquivos a Criar
 
 1. `src/main/java/com/example/taskmanager/dto/TarefaRequestDTO.java`
 2. `src/main/java/com/example/taskmanager/dto/TarefaResponseDTO.java`
-3. `src/main/java/com/example/taskmanager/dto/LoginRequest.java`
-4. `src/main/java/com/example/taskmanager/dto/LoginResponse.java`
-5. `src/main/java/com/example/taskmanager/dto/RegistroRequest.java`
+3. `src/main/java/com/example/taskmanager/dto/LoginRequestDTO.java`
+4. `src/main/java/com/example/taskmanager/dto/LoginResponseDTO.java`
+5. `src/main/java/com/example/taskmanager/dto/RegistroRequestDTO.java`
 6. `src/main/java/com/example/taskmanager/dto/UsuarioResponseDTO.java`
 
 ## Testes

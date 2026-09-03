@@ -9,6 +9,7 @@ public record RegistroRequestDTO(
     @Size(max = 75, message = "Nome deve ter no máximo 75 caracteres")
     String nome,
 
+    @NotBlank(message = "Username é obrigatório")
     @Size(min = 8, max = 15, message = "Username deve ter entre 8 e 15 caracteres")
     String username,
 

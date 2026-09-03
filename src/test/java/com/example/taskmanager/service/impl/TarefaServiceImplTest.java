@@ -14,6 +14,10 @@ import com.example.taskmanager.repository.UsuarioRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,11 +36,13 @@ class TarefaServiceImplTest {
     private final TarefaRepository tarefaRepository = mock(TarefaRepository.class);
     private final UsuarioRepository usuarioRepository = mock(UsuarioRepository.class);
     private final CategoriaRepository categoriaRepository = mock(CategoriaRepository.class);
+    private final TransactionOperations categoriaTransactionOperations = mock(TransactionOperations.class);
     private final TarefaServiceImpl tarefaService = new TarefaServiceImpl(
             new TarefaMapper(),
             tarefaRepository,
             usuarioRepository,
-            categoriaRepository);
+            categoriaRepository,
+            categoriaTransactionOperations);
 
     // --- criar ---
 
@@ -47,7 +53,7 @@ class TarefaServiceImplTest {
         TarefaRequestDTO request = new TarefaRequestDTO("Tarefa", "Descricao", "Pessoal");
 
         when(usuarioRepository.findByUsername("ana12345")).thenReturn(Optional.of(usuario));
-        when(categoriaRepository.findByNomeIgnoreCase("Pessoal")).thenReturn(Optional.of(categoria));
+        when(categoriaRepository.findByNomeNormalizado("pessoal")).thenReturn(Optional.of(categoria));
         when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(invocation -> {
             Tarefa t = invocation.getArgument(0);
             t.setId(1L);
@@ -73,18 +79,40 @@ class TarefaServiceImplTest {
     }
 
     @Test
-    void criar_tarefa_com_categoria_nova_persiste_categoria() {
+    void criar_tarefa_com_categoria_nova_persiste_chave_normalizada() {
         Usuario usuario = new Usuario(1L, "Ana", "ana12345", "senha");
         Categoria categoria = new Categoria(2L, "Nova");
         TarefaRequestDTO request = new TarefaRequestDTO("Tarefa", "Descricao", "Nova");
         when(usuarioRepository.findByUsername("ana12345")).thenReturn(Optional.of(usuario));
-        when(categoriaRepository.findByNomeIgnoreCase("Nova")).thenReturn(Optional.empty());
-        when(categoriaRepository.save(any(Categoria.class))).thenReturn(categoria);
+        when(categoriaRepository.findByNomeNormalizado("nova")).thenReturn(Optional.empty());
+        executarTransacaoDeCategoria();
+        when(categoriaRepository.saveAndFlush(any(Categoria.class))).thenReturn(categoria);
         when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        tarefaService.criar(new TarefaRequestDTO("Tarefa", "Descricao", " Nova "), "ana12345");
+
+        verify(categoriaRepository).saveAndFlush(org.mockito.ArgumentMatchers.argThat(categoriaNova ->
+                categoriaNova.getNome().equals(" Nova ")
+                        && categoriaNova.getNomeNormalizado().equals("nova")));
+    }
+
+    @Test
+    void criar_tarefa_colisao_de_categoria_reutiliza_vencedora() {
+        Usuario usuario = new Usuario(1L, "Ana", "ana12345", "senha");
+        Categoria categoriaExistente = new Categoria(2L, "Nova");
+        TarefaRequestDTO request = new TarefaRequestDTO("Tarefa", "Descricao", "NOVA");
+        when(usuarioRepository.findByUsername("ana12345")).thenReturn(Optional.of(usuario));
+        when(categoriaRepository.findByNomeNormalizado("nova"))
+                .thenReturn(Optional.empty(), Optional.of(categoriaExistente));
+        executarTransacaoDeCategoria();
+        when(categoriaRepository.saveAndFlush(any(Categoria.class)))
+                .thenThrow(new DataIntegrityViolationException("uk_categoria_nome_normalizado"));
+        when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         tarefaService.criar(request, "ana12345");
 
-        verify(categoriaRepository).save(any(Categoria.class));
+        verify(tarefaRepository).save(org.mockito.ArgumentMatchers.argThat(tarefa ->
+                tarefa.getCategoria() == categoriaExistente));
     }
 
     // --- listarTodas ---
@@ -155,7 +183,7 @@ class TarefaServiceImplTest {
         TarefaRequestDTO request = new TarefaRequestDTO("Novo Titulo", "Nova Desc", "Pessoal");
 
         when(tarefaRepository.findByIdComRelacionamentos(1L)).thenReturn(Optional.of(tarefa));
-        when(categoriaRepository.findByNomeIgnoreCase("Pessoal")).thenReturn(Optional.of(categoria));
+        when(categoriaRepository.findByNomeNormalizado("pessoal")).thenReturn(Optional.of(categoria));
         when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(inv -> inv.getArgument(0));
 
         TarefaResponseDTO resposta = tarefaService.atualizar(1L, request, "ana12345");
@@ -313,5 +341,12 @@ class TarefaServiceImplTest {
         tarefa.setUsuario(usuario);
         tarefa.setCategoria(categoria);
         return tarefa;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void executarTransacaoDeCategoria() {
+        when(categoriaTransactionOperations.execute(any())).thenAnswer(invocation ->
+                ((TransactionCallback<Categoria>) invocation.getArgument(0))
+                        .doInTransaction(mock(TransactionStatus.class)));
     }
 }

@@ -83,7 +83,7 @@ Não haverá configuração CORS nesta etapa. A política de origens será defin
 
 ## 3. Erros e Validação
 
-`GlobalExceptionHandler`, a entrada de autenticação e o handler de acesso negado devem produzir respostas RFC 9457 `ProblemDetail`. Para 401 de token ausente ou inválido, a resposta usa `application/problem+json` sem expor detalhes internos.
+`GlobalExceptionHandler`, a entrada de autenticação e o handler de acesso negado devem produzir respostas RFC 9457 `ProblemDetail`. Para 401 de token ausente ou inválido, a resposta usa `application/problem+json; charset=UTF-8`, sem expor detalhes internos; a codificação deve ser definida antes de obter o writer da resposta.
 
 | Situação | Status | Regra |
 |----------|--------|-------|
@@ -123,6 +123,7 @@ Os testes devem ser claros, simples e diretos; cada um verifica um único crité
 9. Concluir e reabrir são idempotentes e não aceitam request body; ambos retornam 403 para tarefa alheia.
 10. DELETE retorna 204 sem corpo.
 11. Swagger UI e OpenAPI são públicos; a documentação indica Bearer JWT nas rotas protegidas.
+12. A resposta 401 produzida pelo entry point declara UTF-8 e preserva corretamente caracteres acentuados do `ProblemDetail`.
 12. A cobertura de código da implementação de controllers e segurança deve ser, no mínimo, 90%.
 
 ## Fora do Escopo

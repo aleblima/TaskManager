@@ -1,6 +1,7 @@
 package com.example.taskmanager.entity;
 
 import jakarta.persistence.*;
+import java.util.Locale;
 import lombok.*;
 
 @Entity
@@ -14,6 +15,13 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nome;
+
+    @Column(nullable = false, unique = true)
+    private String nomeNormalizado;
+
+    public Categoria(Long id, String nome) {
+        this(id, nome, nome.trim().toLowerCase(Locale.ROOT));
+    }
 }

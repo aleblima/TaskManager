@@ -1,6 +1,7 @@
 package com.example.taskmanager.security;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ public class AuthenticationProblemDetailEntryPoint implements AuthenticationEntr
                          AuthenticationException exception) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write("{\"type\":\"about:blank\",\"title\":\"Não autorizado\",\"status\":401,\"detail\":\"Credenciais inválidas\"}");
     }
 }

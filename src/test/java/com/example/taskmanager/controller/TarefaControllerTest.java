@@ -52,7 +52,7 @@ class TarefaControllerTest {
 
     private TarefaResponseDTO tarefaResponse() {
         return new TarefaResponseDTO(1L, "Estudar", "Estudar Spring", false,
-                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, 1L, "Estudos");
+                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, "Ana", 1L, "Estudos");
     }
 
     @Test
@@ -125,7 +125,7 @@ class TarefaControllerTest {
     void atualizar_dados_validos_retorna_200() throws Exception {
         TarefaRequestDTO request = new TarefaRequestDTO("Estudar Java", "Novo conteudo", "Estudos");
         TarefaResponseDTO response = new TarefaResponseDTO(1L, "Estudar Java", "Novo conteudo", false,
-                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, 1L, "Estudos");
+                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, "Ana", 1L, "Estudos");
         when(tarefaService.atualizar(eq(1L), any(TarefaRequestDTO.class), eq("ana12345")))
                 .thenReturn(response);
 
@@ -155,7 +155,7 @@ class TarefaControllerTest {
     @WithMockUser(username = "ana12345")
     void concluir_tarefa_retorna_200() throws Exception {
         TarefaResponseDTO response = new TarefaResponseDTO(1L, "Estudar", "Desc", true,
-                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, 1L, "Cat");
+                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, "Ana", 1L, "Cat");
         when(tarefaService.marcarComoConcluida(1L, "ana12345")).thenReturn(response);
 
         mockMvc.perform(patch("/api/v1/tarefas/1/concluir"))
@@ -179,7 +179,7 @@ class TarefaControllerTest {
     @WithMockUser(username = "ana12345")
     void reabrir_tarefa_retorna_200() throws Exception {
         TarefaResponseDTO response = new TarefaResponseDTO(1L, "Estudar", "Desc", false,
-                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, 1L, "Cat");
+                LocalDateTime.of(2026, 8, 25, 10, 0), 1L, "Ana", 1L, "Cat");
         when(tarefaService.reabrir(1L, "ana12345")).thenReturn(response);
 
         mockMvc.perform(patch("/api/v1/tarefas/1/reabrir"))

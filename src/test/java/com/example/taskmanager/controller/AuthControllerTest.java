@@ -80,6 +80,16 @@ class AuthControllerTest {
     }
 
     @Test
+    void registro_username_em_branco_retorna_400() throws Exception {
+        RegistroRequestDTO request = new RegistroRequestDTO("Ana", "        ", "senha123");
+
+        mockMvc.perform(post("/api/v1/auth/registro")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void login_credenciais_validas_retorna_200() throws Exception {
         LoginRequestDTO request = new LoginRequestDTO("ana12345", "senha123");
         LoginResponseDTO response = new LoginResponseDTO("token-jwt", "Ana");

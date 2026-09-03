@@ -44,9 +44,10 @@ com.example.taskmanager/
 
 - **`ResourceNotFoundException`**: Lançada quando um recurso (tarefa, usuário) não é encontrado no banco de dados. Mapeada para **HTTP 404** no `@ControllerAdvice`.
 - **`AccessDeniedException`**: Lançada em operações de escrita (PUT, PATCH, DELETE) em tarefas pertencentes a outro usuário. Mapeada para **HTTP 403** no `@ControllerAdvice`.
-- **`RegraDeNegocioException`**: Lançada quando houver violação de regra de 
-  negócio (ex: tentativa de registro com username já existente ou 
-  credenciais inválidas). Mapeada para **HTTP 401**.
+- **`RegraDeNegocioException`**: Lançada para conflitos de regra de negócio,
+  como tentativa de registrar username já existente. Mapeada para **HTTP 409**.
+- **`CredenciaisInvalidasException`**: Lançada para credenciais inválidas no
+  login. Mapeada para **HTTP 401**.
 
 ---
 
@@ -136,9 +137,13 @@ Classes anotadas com `@Component` para isolar a conversão entre DTOs e Entidade
 - **Dependências**: `TarefaRepository`, `CategoriaRepository`, `UsuarioRepository`, `TarefaMapper`.
 - **Gerenciamento de Categoria**:
   - Método auxiliar `buscarOuCriarCategoria(String nome)`:
-    - Executa busca case-insensitive no `CategoriaRepository.findByNomeIgnoreCase(nome)`.
+    - Normaliza o nome com `trim().toLowerCase(Locale.ROOT)` e consulta
+      `CategoriaRepository.findByNomeNormalizado(nomeNormalizado)`.
     - Se encontrar, reutiliza a categoria existente.
-    - Se não encontrar, cria uma nova entidade `Categoria` com o nome fornecido e a salva no repositório.
+    - Se não encontrar, cria a categoria com `nome` preservado e
+      `nomeNormalizado` preenchido.
+    - Se a criação concorrer com outra requisição e violar a unicidade, consulta
+      novamente pela chave normalizada e reutiliza a categoria vencedora.
 - **Autorização e Segurança por Tarefa**:
   - **Criar (`criar`)**:
     - Busca o `Usuario` pelo `username`. Se não existir, lança `ResourceNotFoundException`.

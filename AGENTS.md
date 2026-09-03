@@ -93,3 +93,4 @@ Toda regra aqui listada possui um ID e é garantida por testes automatizados (CI
 - `docs/Modulo_Avancado/adr/adr-010-ambiente-desenvolvimento-docker-compose.md` — Ambiente de desenvolvimento com Docker Compose
 - `docs/Modulo_Avancado/adr/adr-011-camada-http-e-versionamento-api.md` — Camada HTTP e versionamento da API
 - `docs/Modulo_Avancado/adr/adr-012-integracao-continua-github-actions.md` — Adoção de CI com GitHub Actions
+- `docs/Modulo_Avancado/adr/adr-013-unicidade-normalizada-categoria.md` — Unicidade case-insensitive de categorias

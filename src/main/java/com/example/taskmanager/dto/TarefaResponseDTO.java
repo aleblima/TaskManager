@@ -9,6 +9,7 @@ public record TarefaResponseDTO(
     Boolean concluida,
     LocalDateTime dataCriacao,
     Long usuarioId,
+    String usuarioNome,
     Long categoriaId,
     String categoriaNome
 ) {}
